@@ -45,14 +45,15 @@ int padre(char * input_path, char * output_path){
         return 0;
     }else{
         //father
-        pid_t figlio;
-        if((figlio=fork())==-1){
+        pid_t figlio_pid;
+        if((figlio_pid=fork())==-1){
             //error creating son
             return 1;
         }
-        if(figlio==0){
+        if(figlio_pid==0){
             //son
             printf("I'm son\n");
+			figlio();
             return 0;
         }else{
             //father

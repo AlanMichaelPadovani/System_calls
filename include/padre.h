@@ -12,6 +12,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "logger.h"
+#include "figlio.h"
 //#include <stdlib.h> //sleep
 
 int padre(char * input_path, char * output_path);
