@@ -53,7 +53,7 @@ int padre(char * input_path, char * output_path){
         if(figlio_pid==0){
             //son
             printf("I'm son\n");
-			figlio();
+			figlio((int *) S1);
             return 0;
         }else{
             //father

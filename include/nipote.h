@@ -1,7 +1,7 @@
 #ifndef NIPOTE_H
 #define NIPOTE_H
 
-int nipote();
+int nipote(int id);
 int load_string();
 int lock();
 int unlock();
