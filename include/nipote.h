@@ -1,10 +1,15 @@
 #ifndef NIPOTE_H
 #define NIPOTE_H
 
-int nipote(int id);
-int load_string();
-int lock();
-int unlock();
+#include <sys/sem.h>
+#include <stdio.h> //printf
+
+struct sembuf sb;
+
+int nipote(int sem, int * S1);
+int load_string(int * S1);
+int lock(int sem);
+int unlock(int sem);
 int find_key();
 void send_timeelapsed();
 void save_key();

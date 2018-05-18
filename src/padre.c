@@ -3,7 +3,7 @@
 int padre(char * input_path, char * output_path){
     int shmid=-1,fd_input=-1, fd_output=-1; //shmid of the shared memory, file descriptors
     int * S1; //location address
-
+    int * * save=malloc(sizeof(int *));
     //open the input file
     fd_input=open(input_path,O_RDONLY,S_IRUSR); //mode is ignored
     if(fd_input==-1){
@@ -28,8 +28,8 @@ int padre(char * input_path, char * output_path){
     //segment successfully obtained
 
     //transfer file into S1
-    int num_line=load_file(fd_input,(char *) S1);
-
+    int num_line=load_file(fd_input,(char *) S1, save);
+    S1=*save; //set s1 to poin at the next address after end of file in S1
     //create S2 in order to store the keys
     int shmid2=-1;
     int * S2=attach_segments(KEY_S2,num_line*4,&shmid2); //each line contains a key of 32 bit
@@ -40,9 +40,7 @@ int padre(char * input_path, char * output_path){
     }
     if(logger_pid==0){
         //logger
-        printf("I'm logger\n");
-        logger();
-        return 0;
+        logger(MSG_KEY);
     }else{
         //father
         pid_t figlio_pid;
@@ -52,9 +50,7 @@ int padre(char * input_path, char * output_path){
         }
         if(figlio_pid==0){
             //son
-            printf("I'm son\n");
-			figlio((int *) S1);
-            return 0;
+			figlio(S1, MSG_KEY);
         }else{
             //father
             wait(NULL); //wait for logger
@@ -101,11 +97,12 @@ int detach_segments(void * locate, int * shmid){
     return shmctl((*shmid),IPC_RMID,(struct shmid_ds *) NULL);
 }
 
-int load_file(int fd, char * S1){
+int load_file(int fd, char * S1, int * * save){
     char buffer[512];
     int r, index;
     char my_char='\n';
     int num_line=0;
+
     //loop for read the file
     while((r=read(fd,&buffer,512))>0){
         //loop for write
@@ -114,6 +111,9 @@ int load_file(int fd, char * S1){
             (*(S1++))=buffer[index]; //copy on shared memory
         }
     }
+    int * p= (int * ) S1; //cast at int in order to perform correct increment of the address
+    *save=p; //save this pointer value to update S1
+    (*(++p))=0; //set string at 0
     return num_line;
 }
 void save_keys();

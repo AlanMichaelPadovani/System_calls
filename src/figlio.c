@@ -1,6 +1,6 @@
 #include "../include/figlio.h"
 
-int figlio(int * S1v){
+int figlio(int * S1v, int msgkey){
 	S1=S1v;
 	//status_updated​ signal handler of signal SIGUSR1
 	signal(SIGUSR1, status_updated);
@@ -27,7 +27,7 @@ int figlio(int * S1v){
 		return 1;
 	}if(nipote1==0){
 		//nephew 1
-		nipote(1);
+		nipote(p,S1);
 	}else{
 		//son
 		//create nephew
@@ -37,9 +37,12 @@ int figlio(int * S1v){
 			return 1;
 		}if(nipote2==0){
 			//nephew 2
-			nipote(2);
+			nipote(p,S1);
 		}else{
 			//son
+			wait(NULL); //wait for a nephew
+			wait(NULL); //wait for the other nephew
+			send_terminate(msgkey);
 			//remove semaphore p
 			int remove = semctl(p, 0, IPC_RMID, NULL);
 			if (remove == -1){
@@ -68,11 +71,11 @@ void status_updated(){
 	char message1[]="Il nipote ";
 	char message2[]=" sta analizzando la ";
 	char message3[]=" -esima stringa.\n";
-	write(0,&message1,sizeof(message1));
-	write(0,grandson,sizeof(int));
-	write(0,&message2,sizeof(message2));
-	write(0,id_string,sizeof(int));
-	write(0,&message3,sizeof(message3));
+	write(1,&message1,sizeof(message1));
+	write(1,grandson,sizeof(int));
+	write(1,&message2,sizeof(message2));
+	write(1,id_string,sizeof(int));
+	write(1,&message3,sizeof(message3));
 	S1=temp; //restore S1
 
 	//END CRITICAL SECTION
@@ -84,4 +87,24 @@ void status_updated(){
 	}
 }
 
-void send_terminate(){}
+void send_terminate(int msgkey){
+	int msgid;
+	if((msgid=msgget(msgkey,0666)) == -1){
+		//can't get the message queue
+		return;
+	}
+	struct Message msg;
+	msg.mtype=1;
+	char text[]="ricerca conclusa\n";
+	int index=0;
+	char * pointer=&text[0];
+	while((*pointer)!='\0'){
+		msg.text[index++]=(*(pointer++));
+	}
+	msg.text[index]='\0';
+	if(msgsnd(msgid,&msg,sizeof(msg)-sizeof(long),0)==-1){
+		//error sending terminate message
+		return;
+	}
+	return;
+}

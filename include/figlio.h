@@ -10,13 +10,15 @@
 #include <sys/sem.h>
 #include "types.h"
 #include <unistd.h>
+#include <sys/wait.h>
+#include <sys/msg.h>
 #include "nipote.h"
 
 int * S1;
 struct sembuf sb;
 int p;
 
-int figlio(int * S1v);
+int figlio(int * S1v, int msgkey);
 void status_updated();
 void send_terminate();
 
