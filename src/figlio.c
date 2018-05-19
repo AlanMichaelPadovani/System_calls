@@ -1,6 +1,6 @@
 #include "../include/figlio.h"
 
-int figlio(int * S1v, int msgkey){
+int figlio(int * S1v, int msgkey, int num_line){
 	S1=S1v;
 	//status_updated​ signal handler of signal SIGUSR1
 	signal(SIGUSR1, status_updated);
@@ -27,7 +27,7 @@ int figlio(int * S1v, int msgkey){
 		return 1;
 	}if(nipote1==0){
 		//nephew 1
-		nipote(p,S1);
+		nipote(1,p,S1,num_line);
 	}else{
 		//son
 		//create nephew
@@ -37,7 +37,7 @@ int figlio(int * S1v, int msgkey){
 			return 1;
 		}if(nipote2==0){
 			//nephew 2
-			nipote(p,S1);
+			nipote(2,p,S1,num_line);
 		}else{
 			//son
 			wait(NULL); //wait for a nephew
@@ -58,33 +58,38 @@ int figlio(int * S1v, int msgkey){
 
 void status_updated(){
 	//acquire the semaphore
+	/*
 	sb.sem_op=-1;
 	if(semop(p,&sb,1)==-1){
 		//error acquiring semaphore
 		return;
-	}
+	}*/
 	//CRITICAL SECTION
 	int * temp = S1; //save S1 into a temp variable
 	//read from S1
-	int * grandson=(S1++);
-	int * id_string=S1;
+	int grandson=*(S1++);
+	//set in ascii
+	grandson=grandson+48;
+	int id_string=*S1;
+	id_string=id_string+48;
 	char message1[]="Il nipote ";
 	char message2[]=" sta analizzando la ";
 	char message3[]=" -esima stringa.\n";
 	write(1,&message1,sizeof(message1));
-	write(1,grandson,sizeof(int));
+	write(1,&grandson,sizeof(int));
 	write(1,&message2,sizeof(message2));
-	write(1,id_string,sizeof(int));
+	write(1,&id_string,sizeof(int));
 	write(1,&message3,sizeof(message3));
 	S1=temp; //restore S1
 
 	//END CRITICAL SECTION
 	//release semaphore
+	/*
 	sb.sem_op=1;
 	if(semop(p,&sb,1)==-1){
 		//error relasing semaphore
 		return;
-	}
+	}*/
 }
 
 void send_terminate(int msgkey){

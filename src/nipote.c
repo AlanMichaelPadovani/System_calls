@@ -1,18 +1,35 @@
 #include "../include/nipote.h"
 
-int nipote(int sem, int * S1){
+int nipote(int id, int sem, int * S1, int num_line){
     int my_string;
     sb.sem_num=0;
 	sb.sem_flg=0;
+    char my_str[1029];
+    char * temp;
     //acquire semaphore
-    lock(sem);
-    //CRITICAL SECTION
-    //access status
-    my_string=load_string(++S1);
-    printf("My string is: %d\n",my_string);
-    //END CRITICAL SECTION
-    unlock(sem);
-    return 0;
+    while(1){
+        lock(sem);
+        //CRITICAL SECTION
+        //access status
+        my_string=load_string(++S1);
+        if(my_string==num_line){
+            S1--;
+            //end nephew
+            unlock(sem);
+            return 0;
+        }else{
+            //increment id_string
+            (*S1)++;
+            //set grandson
+            (*(--S1))=id;
+            //notify son
+            kill(getppid(),SIGUSR1);
+            //copy my string
+            //END CRITICAL SECTION
+            unlock(sem);
+            //sleep(4);
+        }
+    }
 }
 
 int load_string(int * S1){
