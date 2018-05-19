@@ -15,20 +15,32 @@ int logger(int msgkey){
 }
 void polling_receive(int msgid){
     struct Message message;
-    int flag=1;
+    struct msqid_ds info;
+    int flag=1,num_msg;
     while(flag){
         //alarm(1); //set alarm
         //pause();
         sleep(1); //wait for 1 sec
-        msgrcv(msgid, &message, sizeof(struct Message) - sizeof(long), 0,IPC_NOWAIT);
-        if(message.mtype == 1){
-            //terminate
+        if(msgctl(msgid,IPC_STAT, &info)==-1){
+            //impossible access the queue
+            printf("error\n");
+            return;
+        }
+        num_msg=info.msg_qnum;
+        while(num_msg>0){
+            msgrcv(msgid, &message, sizeof(struct Message) - sizeof(long), 0,IPC_NOWAIT);
+            if(message.mtype == 1){
+                //terminate
 
-            write(1,&(message.text),17);
-            //read remaining message
-            flag=0;
-        }else{
-            //message from nephew
+                write(1,&(message.text),17);
+                //read remaining message
+                flag=0;
+                num_msg--;
+            }else{
+                //message from nephew
+                write(1,&(message.text),128);
+                num_msg--;
+            }
         }
 
     }

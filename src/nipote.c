@@ -26,8 +26,9 @@ int nipote(int id, int sem, int * S1, int num_line){
             kill(getppid(),SIGUSR1);
             //copy my string
             //END CRITICAL SECTION
+            sleep(1);
             unlock(sem);
-            //sleep(4);
+
         }
     }
 }

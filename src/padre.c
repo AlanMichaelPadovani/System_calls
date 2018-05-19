@@ -10,7 +10,17 @@ int padre(char * input_path, char * output_path){
         //error opening
         return 1;
     }
-    //obtain the file size
+    //obtain num_line
+    char buffer[512];
+    int num_line=0, r, index;
+    char my_char='\n';
+    while((r=read(fd_input,&buffer,512))>0){
+        for(index=0; index < r ; index++){
+            if(buffer[index]==my_char) num_line++; //count line
+        }
+    }
+
+    /*
     off_t file_size=lseek(fd_input,0,SEEK_END);
     if(file_size == -1){
         //error
@@ -18,17 +28,22 @@ int padre(char * input_path, char * output_path){
     }
     //restore the offset on the start of file
     lseek(fd_input,0,SEEK_SET);
+    */
 
-    S1=attach_segments(KEY_S1,file_size+sizeof(struct Status),&shmid);
+    S1=attach_segments(KEY_S1,(num_line * 1030)+sizeof(struct Status),&shmid);
 
     if((*S1) == -1){
         //error
         return 1;
     }
+
     //segment successfully obtained
 
     //transfer file into S1
-    int num_line=load_file(fd_input,(char *) S1, save);
+    lseek(fd_input,0,SEEK_SET);
+    load_file(fd_input,(char *) S1, save);
+    close(fd_input); //close file input
+
     S1=*save; //set s1 to poin at the next address after end of file in S1
     //create S2 in order to store the keys
     int shmid2=-1;
@@ -50,13 +65,14 @@ int padre(char * input_path, char * output_path){
         }
         if(figlio_pid==0){
             //son
-			figlio(S1, MSG_KEY);
+			figlio(S1, MSG_KEY, num_line);
         }else{
             //father
             wait(NULL); //wait for logger
             wait(NULL); //wait for son
             printf("I'm father\n");
             //sleep(10);
+            free(save);
             //delete shared memory for S1
             if(detach_segments(S1,&shmid)==-1){
                 //error
@@ -97,24 +113,35 @@ int detach_segments(void * locate, int * shmid){
     return shmctl((*shmid),IPC_RMID,(struct shmid_ds *) NULL);
 }
 
-int load_file(int fd, char * S1, int * * save){
+void load_file(int fd, char * S1, int * * save){
     char buffer[512];
-    int r, index;
-    char my_char='\n';
-    int num_line=0;
-
+    int r, index, c=0;
+    char end_line='\n';
     //loop for read the file
     while((r=read(fd,&buffer,512))>0){
         //loop for write
         for(index=0; index < r ; index++){
-            if(buffer[index]==my_char) num_line++; //count line
-            (*(S1++))=buffer[index]; //copy on shared memory
+            c++;
+            if(buffer[index]==end_line){
+                //endline
+                (*(S1))=buffer[index]; //copy end line
+                while(c<1030){
+                    //is not max line size
+                    S1++;
+                    c++;
+                }
+                S1++;
+                c=0;
+            }else{
+                (*(S1++))=buffer[index]; //copy on shared memory
+            }
         }
     }
     int * p= (int * ) S1; //cast at int in order to perform correct increment of the address
     *save=p; //save this pointer value to update S1
     (*(++p))=0; //set string at 0
-    return num_line;
+    (*(--p))=0; //set grandson
+    return;
 }
 void save_keys();
 void check_keys();
