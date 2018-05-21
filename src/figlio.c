@@ -19,7 +19,6 @@ int figlio(int * S1v, int * S2, int msgkey, int num_line){
 		printf("error creating p");
        	return 1;
 	}
-
 	//create nephew
 	pid_t nipote1;
 	if((nipote1=fork())==-1){

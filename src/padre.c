@@ -3,7 +3,9 @@
 int padre(char * input_path, char * output_path){
     int shmid=-1,fd_input=-1, fd_output=-1; //shmid of the shared memory, file descriptors
     int * S1; //location address
-    int * * save=malloc(sizeof(int *));
+    //int * * save=malloc(sizeof(int *));
+    struct Memory save_info;
+    int * * save= (int * *) get_space(&save_info,sizeof(int *));
     //open the input file
     fd_input=open(input_path,O_RDONLY,S_IRUSR); //mode is ignored
     if(fd_input==-1){
@@ -44,7 +46,7 @@ int padre(char * input_path, char * output_path){
     load_file(fd_input,(char *) S1, save);
     close(fd_input); //close file input
 
-    S1=*save; //set s1 to poin at the next address after end of file in S1
+    S1=*save; //set s1 to point at the next address after end of file in S1
     //create S2 in order to store the keys
     int shmid2=-1;
     int * S2=attach_segments(KEY_S2,num_line*4,&shmid2); //each line contains a key of 32 bit
@@ -71,8 +73,9 @@ int padre(char * input_path, char * output_path){
             wait(NULL); //wait for logger
             wait(NULL); //wait for son
             printf("I'm father\n");
-            //sleep(10);
-            free(save);
+            check_keys(num_line,(char *) S1,(char *) S2);
+            //free(save);
+            rem_space(&save_info);
             //delete shared memory for S1
             if(detach_segments(S1,&shmid)==-1){
                 //error
@@ -144,4 +147,38 @@ void load_file(int fd, char * S1, int * * save){
     return;
 }
 void save_keys();
-void check_keys();
+void check_keys(int num_keys, char * S1, char * S2){
+    //restore S1 to start file
+    S1=S1-(num_keys * 1030);
+    char * S1c=S1+1029; //locate S1c on the end of line
+    //locate end of line
+    while(*S1c != '\n') S1c--;
+    S1c= S1+(((S1c) - S1) / 2); //make S1c point at the middle of the string
+    int str_len=(S1c-S1)-2;
+    printf("len of the line %d \n",str_len);
+    int i=0,j=0;
+    unsigned * key= (unsigned *) S2;
+    unsigned * start=key;
+    for(i;i<num_keys;i++){
+        //main loop for check keys
+        S1++; //skip <
+        S1c=S1c+2; //skip <
+        int k=0;
+        for(j=0;j<str_len;j=j+4){
+            unsigned *  S1u = (unsigned *) S1;
+            unsigned * S1cu= (unsigned * ) S1c;
+            if( (*(S1u++)) ^ (*(key++)) != (*(S1c++)) ){
+                printf("Nooo!\n");
+                break;
+            }
+            k=k+4;
+            if(k==36){
+                key=start;
+                k=0;
+            }
+            printf("okay\n");
+        }
+        break;
+
+    }
+}

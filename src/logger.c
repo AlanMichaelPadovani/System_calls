@@ -20,7 +20,7 @@ void polling_receive(int msgid){
     while(flag){
         //alarm(1); //set alarm
         //pause();
-        sleep(1); //wait for 1 sec
+        stop(1); //wait for 1 sec
         if(msgctl(msgid,IPC_STAT, &info)==-1){
             //impossible access the queue
             printf("error\n");
@@ -44,27 +44,4 @@ void polling_receive(int msgid){
 
     }
     return;
-    /*
-
-    int flag=1;
-    while(flag==1){
-
-        alarm(0);//delete prev alarm
-        alarm(1); //set alarm
-        pause();
-        if(alarm(0)!=0){
-            //exited for another signal
-        }
-        msgrcv(msgid, &message, sizeof(struct Message) - sizeof(long), 0,IPC_NOWAIT);
-        if(message.mtype == 1){
-            //terminate
-
-            write(1,&(message.text),sizeof(message.text));
-            //read remaining message
-
-        }
-        flag=0;
-    }
-    printf("Polling receive end\n");
-    */
 }

@@ -11,4 +11,10 @@ struct Message{
     char text[128];
 };
 
+struct Memory{
+    key_t key;
+    int id;
+    void * pointer;
+};
+
 #endif

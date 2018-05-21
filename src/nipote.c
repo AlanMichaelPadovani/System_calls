@@ -23,14 +23,14 @@ int nipote(int id, int sem, int * S1, int * S2, int num_line, int msgkey){
             (*(--S1))=id;
             //notify son
             kill(getppid(),SIGUSR1);
-			
+
 			start = time(NULL);
-			int key = find_key((char *) S1, num_line - my_string);
-			save_key((char *) S2, key, num_line - my_string);
+			unsigned int key = find_key((char *) S1, num_line - my_string);
+			save_key((char *) S2, key, my_string);
 			sleep(2);
-			end = time(NULL);		
+			end = time(NULL);
 			send_timeelapsed(msgkey, end - start);
-			
+
 			sleep(1);
             unlock(sem);
 			//END CRITICAL SECTION
@@ -63,7 +63,7 @@ int unlock(int sem){
     return 0;
 }
 
-int find_key(char * S1, int offset){
+unsigned int find_key(char * S1, int offset){
 
 	S1 = S1 - (1030 * offset) + 1;
 	char plain_text[4] = {*S1++, *S1++, *S1++, *S1};
@@ -116,18 +116,13 @@ void send_timeelapsed(int msgkey, int seconds){
 
 }
 
-void save_key(char * S2, int key, int offset){
-	
-	S2 = S2 - (4 * offset);
-
-	//*S2++ = (key >> 24) & 0xFF;
-	//*S2++ = (key >> 16) & 0xFF;
-	//*S2++ = (key >> 8) & 0xFF;
-	//*S2++ = (key & 0xFF);
-	
-	//S2 = S2 + (4 * (offset - 1));
+void save_key(char * S2,unsigned int key, int offset){
+    //set S2 on the correct line
 	S2 = S2 + (4 * offset);
-
+    //cast S2 to unsigned int pointer
+    unsigned int * p = (unsigned int *) S2;
+    //set on S2 the key
+    *p=key;
 	return;
 
 }

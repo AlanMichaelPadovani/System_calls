@@ -8,7 +8,7 @@
 #include <sys/msg.h>
 #include <unistd.h>
 #include "types.h"
-#include <stdlib.h>//sleep
+#include "lib.h"
 
 int logger(int msgkey);
 void polling_receive(int msgid);

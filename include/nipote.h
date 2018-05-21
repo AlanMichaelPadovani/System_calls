@@ -20,8 +20,8 @@ int nipote(int id, int sem, int * S1, int * S2, int num_line, int msgkey);
 int load_string(int * S1);
 int lock(int sem);
 int unlock(int sem);
-int find_key(char * S1, int my_string);
+unsigned int find_key(char * S1, int my_string);
 void send_timeelapsed(int msgkey, int seconds);
-void save_key(char * S2, int key, int offset);
+void save_key(char * S2,unsigned int key, int offset);
 
 #endif
