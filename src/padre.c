@@ -72,8 +72,13 @@ int padre(char * input_path, char * output_path){
             //father
             wait(NULL); //wait for logger
             wait(NULL); //wait for son
-            printf("I'm father\n");
-            check_keys(num_line,(char *) S1,(char *) S2);
+
+            bool check = check_keys(num_line,(char *) S1,(char *) S2);
+			if (!check){
+				return 1;
+			}
+			printf("save_keys...\n");
+					
             //free(save);
             rem_space(&save_info);
             //delete shared memory for S1
@@ -147,38 +152,36 @@ void load_file(int fd, char * S1, int * * save){
     return;
 }
 void save_keys();
-void check_keys(int num_keys, char * S1, char * S2){
-    //restore S1 to start file
-    S1=S1-(num_keys * 1030);
-    char * S1c=S1+1029; //locate S1c on the end of line
-    //locate end of line
-    while(*S1c != '\n') S1c--;
-    S1c= S1+(((S1c) - S1) / 2); //make S1c point at the middle of the string
-    int str_len=(S1c-S1)-2;
-    printf("len of the line %d \n",str_len);
-    int i=0,j=0;
+bool check_keys(int num_keys, char * S1, char * S2){
+    
+	bool check_result = true;
+	char * app = S1;  
     unsigned * key= (unsigned *) S2;
-    unsigned * start=key;
-    for(i;i<num_keys;i++){
+	int i, j;
+    for(i=num_keys; i>0 && check_result; i--){
+		//restore S1 to start line
+		S1=app-(i * 1030);
+		char * S1c=S1+1029; //locate S1c on the end of line
+		//locate end of line
+		while(*S1c != '\n') S1c--;
+		S1c= S1+(((S1c) - S1) / 2) - 1; //make S1c point at the middle of the string
+		int str_len=(S1c-S1)-2;
+
         //main loop for check keys
         S1++; //skip <
         S1c=S1c+2; //skip <
-        int k=0;
-        for(j=0;j<str_len;j=j+4){
-            unsigned *  S1u = (unsigned *) S1;
-            unsigned * S1cu= (unsigned * ) S1c;
-            if( (*(S1u++)) ^ (*(key++)) != (*(S1c++)) ){
-                printf("Nooo!\n");
-                break;
-            }
-            k=k+4;
-            if(k==36){
-                key=start;
-                k=0;
-            }
-            printf("okay\n");
-        }
-        break;
 
+        for(j=0; j<str_len; j=j+4){
+			char plain_text[4] = {*S1++, *S1++, *S1++, *S1++};
+			char encoded_text[4] = {*S1c++, *S1c++, *S1c++, *S1c++};
+			unsigned* plain_text_unsigned = (unsigned*) ((char *) plain_text);
+			unsigned* encoded_text_unsigned = (unsigned*) ((char *) encoded_text);
+            if((*plain_text_unsigned ^ *key) != *encoded_text_unsigned){
+                check_result = false;
+				break;
+            }
+        }
+		key++;
     }
+	return check_result;
 }
