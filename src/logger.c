@@ -31,14 +31,13 @@ void polling_receive(int msgid){
             msgrcv(msgid, &message, sizeof(struct Message) - sizeof(long), 0,IPC_NOWAIT);
             if(message.mtype == 1){
                 //terminate
-
                 write(1,&(message.text),17);
                 //read remaining message
                 flag=0;
                 num_msg--;
             }else{
                 //message from nephew
-                write(1,&(message.text),128);
+                write(1,&(message.text),20);
                 num_msg--;
             }
         }

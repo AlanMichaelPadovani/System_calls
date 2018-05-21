@@ -1,11 +1,10 @@
 #include "../include/nipote.h"
 
-int nipote(int id, int sem, int * S1, int num_line){
+int nipote(int id, int sem, int * S1, int * S2, int num_line, int msgkey){
     int my_string;
     sb.sem_num=0;
 	sb.sem_flg=0;
-    char my_str[1029];
-    char * temp;
+	time_t start, end;
     //acquire semaphore
     while(1){
         lock(sem);
@@ -24,11 +23,17 @@ int nipote(int id, int sem, int * S1, int num_line){
             (*(--S1))=id;
             //notify son
             kill(getppid(),SIGUSR1);
-            //copy my string
-            //END CRITICAL SECTION
-            sleep(1);
+			
+			start = time(NULL);
+			int key = find_key((char *) S1, num_line - my_string);
+			save_key((char *) S2, key, num_line - my_string);
+			sleep(2);
+			end = time(NULL);		
+			send_timeelapsed(msgkey, end - start);
+			
+			sleep(1);
             unlock(sem);
-
+			//END CRITICAL SECTION
         }
     }
 }
@@ -58,6 +63,71 @@ int unlock(int sem){
     return 0;
 }
 
-int find_key();
-void send_timeelapsed();
-void save_key();
+int find_key(char * S1, int offset){
+
+	S1 = S1 - (1030 * offset) + 1;
+	char plain_text[4] = {*S1++, *S1++, *S1++, *S1};
+
+	int text_size = 4;
+	while ((*S1++) != ';') text_size++;
+
+	S1 = S1 + 1;
+	char encoded_text[4] = {*S1++, *S1++, *S1++, *S1};
+	S1 = S1 + (1030 * offset) - text_size;
+
+    //printf("plain: %s, crypt: %s\n", plain_text, encoded_text);
+
+	unsigned* plain_text_unsigned = (unsigned*) ((char *) plain_text);
+	unsigned* encoded_text_unsigned = (unsigned*) ((char *) encoded_text);
+
+	unsigned int key;
+	for (key = 0; key < UINT_MAX; key++){
+		if ((*plain_text_unsigned ^ key) == *encoded_text_unsigned){
+			//printf("key: %x, %d\n", key, key);
+			break;
+		}
+	}
+
+	return key;
+}
+
+void send_timeelapsed(int msgkey, int seconds){
+
+	int msgid;
+	if((msgid=msgget(msgkey,0666)) == -1){
+		//can't get the message queue
+		return;
+	}
+	struct Message msg;
+	msg.mtype=2;
+	char text[] = "chiave trovata in 0\n";
+	text[18] = seconds + 48;
+	int index=0;
+	char * pointer=&text[0];
+	while((*pointer)!='\0'){
+		msg.text[index++]=(*(pointer++));
+	}
+	msg.text[index]='\0';
+	if(msgsnd(msgid,&msg,sizeof(msg)-sizeof(long),0)==-1){
+		//error sending terminate message
+		return;
+	}
+	return;
+
+}
+
+void save_key(char * S2, int key, int offset){
+	
+	S2 = S2 - (4 * offset);
+
+	//*S2++ = (key >> 24) & 0xFF;
+	//*S2++ = (key >> 16) & 0xFF;
+	//*S2++ = (key >> 8) & 0xFF;
+	//*S2++ = (key & 0xFF);
+	
+	//S2 = S2 + (4 * (offset - 1));
+	S2 = S2 + (4 * offset);
+
+	return;
+
+}

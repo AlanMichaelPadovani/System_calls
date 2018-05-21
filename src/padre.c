@@ -65,7 +65,7 @@ int padre(char * input_path, char * output_path){
         }
         if(figlio_pid==0){
             //son
-			figlio(S1, MSG_KEY, num_line);
+			figlio(S1, S2, MSG_KEY, num_line);
         }else{
             //father
             wait(NULL); //wait for logger

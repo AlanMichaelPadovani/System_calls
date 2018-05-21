@@ -1,7 +1,7 @@
 #ifndef FIGLIO_H
 #define FIGLIO_H
 
-#define KEY_P 16
+#define KEY_P 19
 
 #include <stdio.h>
 #include <signal.h>
@@ -18,7 +18,7 @@ int * S1;
 struct sembuf sb;
 int p;
 
-int figlio(int * S1v, int msgkey, int num_line);
+int figlio(int * S1v, int * S2, int msgkey, int num_line);
 void status_updated();
 void send_terminate();
 

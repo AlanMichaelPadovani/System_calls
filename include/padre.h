@@ -1,9 +1,10 @@
 #ifndef PADRE_H
 #define PADRE_H
 
-#define KEY_S1 20
-#define KEY_S2 11
-#define MSG_KEY 15
+#define KEY_S1 16
+#define KEY_S2 17
+#define MSG_KEY 18
+
 #include <sys/shm.h>
 #include <sys/ipc.h>
 #include <stdio.h> //NULL

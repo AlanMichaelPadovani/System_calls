@@ -1,6 +1,6 @@
 #include "../include/figlio.h"
 
-int figlio(int * S1v, int msgkey, int num_line){
+int figlio(int * S1v, int * S2, int msgkey, int num_line){
 	S1=S1v;
 	//status_updated​ signal handler of signal SIGUSR1
 	signal(SIGUSR1, status_updated);
@@ -27,7 +27,7 @@ int figlio(int * S1v, int msgkey, int num_line){
 		return 1;
 	}if(nipote1==0){
 		//nephew 1
-		nipote(1,p,S1,num_line);
+		nipote(1,p,S1,S2,num_line,msgkey);
 	}else{
 		//son
 		//create nephew
@@ -37,7 +37,7 @@ int figlio(int * S1v, int msgkey, int num_line){
 			return 1;
 		}if(nipote2==0){
 			//nephew 2
-			nipote(2,p,S1,num_line);
+			nipote(2,p,S1,S2,num_line,msgkey);
 		}else{
 			//son
 			wait(NULL); //wait for a nephew
