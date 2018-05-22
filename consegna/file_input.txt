@@ -1,4 +1,4 @@
-<Corso Sistemi Operativi>;<½¥rs‘êSi¾em—êOp›¸at—¼i>
-<Federico corregge il primo progetto>;<Hµde|¹co.³or|µggkðil. ric¿ p|¿gez¤o>
-<Alessandro corregge il secondo progetto>;<ÌÊesþÇndÿÉ câÔreêÁe äÊ sèÅonéÉ pÿÉgeùÒo>
-<Graziano verbalizza l'esame>;<¹¸az—«noÞ¼erœ«li„°a ’íesŸ§e>
+<Corso Sistemi Operativi!>;<½¥Œ¹‘ê­£¾›§—ê±º›¸Ÿ¾—¼—ëÀ@>
+<Federico corregge il primo progetto!>;<Hµjµ|¹m¿.³a¢|µi·kðg¼. |¹c¿. |¿iµz¤añÿ>
+<Alessandro corregge il secondo progetto!>;<ÌÊèÕþÇãÂÿÉ­ÅâÔÿÃêÁè†äÊ­ÕèÅâÈéÉ­ÖÿÉêÃùÒâ‡À@>
+<Graziano verbalizza l'esame!>;<¹¸Ÿ°—«¥Þ¼›¸œ«’£„°Ÿê’í›¹Ÿ§›ë>
