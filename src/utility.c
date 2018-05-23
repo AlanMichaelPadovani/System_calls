@@ -1,4 +1,4 @@
-#include "../include/lib.h"
+#include "../include/utility.h"
 
 void stop(int seconds){
     //register for signal handler

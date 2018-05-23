@@ -1,24 +1,27 @@
 #include "../include/figlio.h"
 
-int figlio(int * S1v, int * S2, int msgkey, int num_line){
-	S1=S1v;
+int figlio(){
 	//status_updated​ signal handler of signal SIGUSR1
 	signal(SIGUSR1, status_updated);
 
 	//create semaphore p
-	p = semget(KEY_P, 1, IPC_CREAT|IPC_EXCL|0666);
+	p = semget(KEY_P, 2, IPC_CREAT|IPC_EXCL|0666);
 	sb.sem_num=0;
 	sb.sem_op=1;
 	sb.sem_flg=0;
-	if(semop(p,&sb,1)==-1){
+	if(p == -1 || semop(p,&sb,1)==-1){
 		//error initializing semaphore
 		return 1;
 	}
-	if (p == -1){
-        //error semget
-		printf("error creating p");
-       	return 1;
+	
+	sb.sem_num=1;
+	sb.sem_op=1;
+	sb.sem_flg=0;
+	if(p == -1 || semop(p,&sb,1)==-1){
+		//error initializing semaphore
+		return 1;
 	}
+
 	//create nephew
 	pid_t nipote1;
 	if((nipote1=fork())==-1){
@@ -26,7 +29,7 @@ int figlio(int * S1v, int * S2, int msgkey, int num_line){
 		return 1;
 	}if(nipote1==0){
 		//nephew 1
-		nipote(1,p,S1,S2,num_line,msgkey);
+		nipote(1,p);
 	}else{
 		//son
 		//create nephew
@@ -36,12 +39,12 @@ int figlio(int * S1v, int * S2, int msgkey, int num_line){
 			return 1;
 		}if(nipote2==0){
 			//nephew 2
-			nipote(2,p,S1,S2,num_line,msgkey);
+			nipote(2,p);
 		}else{
 			//son
 			wait(NULL); //wait for a nephew
 			wait(NULL); //wait for the other nephew
-			send_terminate(msgkey);
+			send_terminate();
 			//remove semaphore p
 			int remove = semctl(p, 0, IPC_RMID, NULL);
 			if (remove == -1){
@@ -91,9 +94,9 @@ void status_updated(){
 	}*/
 }
 
-void send_terminate(int msgkey){
+void send_terminate(){
 	int msgid;
-	if((msgid=msgget(msgkey,0666)) == -1){
+	if((msgid=msgget(MSG_KEY,0666)) == -1){
 		//can't get the message queue
 		return;
 	}

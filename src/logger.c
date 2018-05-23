@@ -1,10 +1,10 @@
 #include "../include/logger.h"
 
-int logger(int msgkey){
+int logger(){
     //create message queue
     printf("logger active\n");
     int msgid=-1;
-    if((msgid=msgget(msgkey,(0666|IPC_CREAT|IPC_EXCL)))==-1){
+    if((msgid=msgget(MSG_KEY,(0666|IPC_CREAT|IPC_EXCL)))==-1){
         //error
         printf("Can't get message queue\n");
         return 1;

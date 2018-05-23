@@ -1,19 +1,22 @@
 #include "../include/nipote.h"
 
-int nipote(int id, int sem, int * S1, int * S2, int num_line, int msgkey){
+int nipote(int id, int sem){
     int my_string;
     sb.sem_num=0;
+	sb.sem_flg=0;
+    sb.sem_num=1;
 	sb.sem_flg=0;
 	time_t start, end;
     struct timespec time_struct; //struct used to retrieve seconds
     time_t seconds;
     //acquire semaphore
     while(1){
+    	sb.sem_num=0;
         lock(sem);
         //CRITICAL SECTION
         //access status
-        my_string=load_string(++S1);
-        if(my_string==num_line){
+        my_string=load_string();
+        if(my_string==num_line_inputfile){
             S1--;
             //end nephew
             unlock(sem);
@@ -30,28 +33,28 @@ int nipote(int id, int sem, int * S1, int * S2, int num_line, int msgkey){
                 seconds=0;
             }
             seconds=time_struct.tv_sec;
-			//start = time(NULL);
-			unsigned int key = find_key((char *) S1, num_line - my_string);
-			save_key((char *) S2, key, my_string);
-			//sleep(2);
-			//end = time(NULL);
+
+			unsigned int key = find_key((char *) S1, num_line_inputfile - my_string, sem);//unlock sem inside
+
+			sb.sem_num=1;
+			lock(sem);
+			save_key(key, my_string);
+			unlock(sem);
+
             if(clock_gettime(CLOCK_REALTIME,&time_struct)==-1){ //2038 year bug
-                printf("Error getting end");
                 seconds=0;
             }
             seconds=time_struct.tv_sec-seconds; //take second passed by difference
-			send_timeelapsed(msgkey, seconds);
+			send_timeelapsed(seconds);
 
-			sleep(1);
-            unlock(sem);
 			//END CRITICAL SECTION
         }
     }
 }
 
-int load_string(int * S1){
+int load_string(){
     //S1 points at the next string
-    return (*S1);
+    return (*++S1);
 }
 
 int lock(int sem){
@@ -74,9 +77,10 @@ int unlock(int sem){
     return 0;
 }
 
-unsigned int find_key(char * S1, int offset){
+unsigned int find_key(char * S1, int offset, int sem){
 
 	S1 = S1 - (1030 * offset) + 1;
+
 	char plain_text[4] = {*S1++, *S1++, *S1++, *S1};
 
 	int text_size = 4;
@@ -85,8 +89,10 @@ unsigned int find_key(char * S1, int offset){
 	S1 = S1 + 1;
 	char encoded_text[4] = {*S1++, *S1++, *S1++, *S1};
 	S1 = S1 + (1030 * offset) - text_size;
+	
+	unlock(sem);
 
-    //printf("plain: %s, crypt: %s\n", plain_text, encoded_text);
+  	//printf("plain: %s, crypt: %s\n", plain_text, encoded_text);
 
 	unsigned* plain_text_unsigned = (unsigned*) ((char *) plain_text);
 	unsigned* encoded_text_unsigned = (unsigned*) ((char *) encoded_text);
@@ -98,13 +104,12 @@ unsigned int find_key(char * S1, int offset){
 			break;
 		}
 	}
-
 	return key;
 }
 
-void send_timeelapsed(int msgkey, int seconds){
+void send_timeelapsed(int seconds){
 	int msgid;
-	if((msgid=msgget(msgkey,0666)) == -1){
+	if((msgid=msgget(MSG_KEY,0666)) == -1){
 		//can't get the message queue
 		return;
 	}
@@ -140,11 +145,11 @@ void send_timeelapsed(int msgkey, int seconds){
 	return;
 }
 
-void save_key(char * S2,unsigned int key, int offset){
+void save_key(unsigned int key, int offset){
     //set S2 on the correct line
-	S2 = S2 + (4 * offset);
+	char * S2c = (char *) S2 + (4 * offset);
     //cast S2 to unsigned int pointer
-    unsigned int * p = (unsigned int *) S2;
+    unsigned int * p = (unsigned int *) S2c;
     //set on S2 the key
     *p=key;
 	return;
