@@ -37,7 +37,9 @@ void polling_receive(int msgid){
                 num_msg--;
             }else{
                 //message from nephew
-                write(1,&(message.text),20);
+                int size=0;
+                while(message.text[size++]!='\0');
+                write(1,&(message.text),size);
                 num_msg--;
             }
         }

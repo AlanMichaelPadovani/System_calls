@@ -1,7 +1,7 @@
 #ifndef FIGLIO_H
 #define FIGLIO_H
 
-#define KEY_P 19
+#define KEY_P 62
 
 #include <stdio.h>
 #include <signal.h>
