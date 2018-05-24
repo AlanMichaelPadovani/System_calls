@@ -75,9 +75,10 @@ int padre(char * input_path, char * output_path){
             wait(NULL); //wait for logger
             wait(NULL); //wait for son
 
-            /*
-            bool check = check_keys(num_line_inputfile, (char *) S1, (char *) S2);
+
+            bool check = check_keys(num_line_inputfile, ( char *) S1, (char *) S2);
 			if (!check){
+                printf("fail\n");
 				//we have also to free memory
                 //delete shared memory for S1
                 if(detach_segments(S1,&shmid)==-1){
@@ -92,7 +93,7 @@ int padre(char * input_path, char * output_path){
                     return 1;
                 }
                 return 1;
-			}*/
+			}
             //check ok
             save_keys(output_path,(unsigned int *) S2);
             //delete shared memory for S1
@@ -171,7 +172,7 @@ void save_keys(char * output_path, unsigned int * S2){
     //create or if exist truncate the file
     int fd=creat(output_path,O_WRONLY);
     //set readeable
-    fchmod(fd,S_IRUSR|S_IRWXG);
+    fchmod(fd,S_IRUSR|S_IWUSR);
     char prefix[]="0x";
     char key7, key6, key5, key4, key3, key2, key1, key0;
     int i;
@@ -218,7 +219,7 @@ bool check_keys(int num_keys, char * S1, char * S2){
 		char * S1c=S1+1029; //locate S1c on the end of line
 		//locate end of line
 		while(*S1c != '\n') S1c--;
-		S1c= S1+(((S1c) - S1) / 2) - 1; //make S1c point at the middle of the string
+		S1c= S1+(((--S1c) - S1) / 2); //make S1c point at the middle of the string
 		int str_len=(S1c-S1)-2;
 
         //main loop for check keys
