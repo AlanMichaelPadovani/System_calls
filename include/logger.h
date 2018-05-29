@@ -4,7 +4,7 @@
 #include "utility.h"
 #include <sys/msg.h>
 
-int logger();
+void logger();
 void polling_receive(int msgid);
 
 #endif

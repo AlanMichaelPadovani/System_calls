@@ -1,24 +1,37 @@
-PROJECT := key_finder
-OBJ := main.o figlio.o logger.o nipote.o padre.o
+PROGRAM = key_finder
+OBJ := main.o figlio.o logger.o nipote.o padre.o utility.o
 LD := gcc
 #CFLAGS :=
+DOXYFILE = doxygen.cfg
 
 %.o: ./include/%.c
-	@echo Compiling $< -> $@
+	@echo Compiling... $< -> $@
 	$(CC) $(CFLAGS) -c $< -o $@
 
-key_finder: $(OBJ)
-	@echo Linking key_finder
-	$(LD) $(LDFLAGS) $(OBJ) -o key_finder
+$(PROGRAM): $(OBJ)
+	@echo Linking $PROGRAM...
+	$(LD) $(LDFLAGS) $(OBJ) -o $PROGRAM
 
-
-all: key_finder
-
-install:
-	cp key_finder ./bin/
+all: $PROGRAM
 
 clean:
-	@echo Cleaning
-	rm *.o my_exec
+	@echo Cleaning...
+	@$(RM) *.o $PROGRAM
 
-.PHONY: all install clean
+doc:
+	@echo Documenting...
+	doxygen $(DOXYFILE)
+	
+install:
+	@echo Installing...
+	@mkdir -p bin
+	mv $(PROGRAM) ./bin
+
+threads:
+	@echo TODO
+
+.PHONY: help
+
+help: makefile
+	@sed -n $<
+

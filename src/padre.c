@@ -1,15 +1,15 @@
 #include "../include/padre.h"
 
-int padre(char * input_path, char * output_path){
+void padre(char * input_path, char * output_path){
     int shmid=-1,fd_input=-1, fd_output=-1; //shmid of the shared memory, file descriptors
-    //int * * save=malloc(sizeof(int *));
     struct Memory save_info;
     int * * save= (int * *) get_space(&save_info,sizeof(int *));
+    
     //open the input file
     fd_input=open(input_path,O_RDONLY,S_IRUSR); //mode is ignored
     if(fd_input==-1){
-        //error opening
-        return 1;
+    	perror(ERROR_GENERIC);
+        _exit(EXIT_FAILURE);
     }
 
     //obtain num_line_inputfile
@@ -23,23 +23,11 @@ int padre(char * input_path, char * output_path){
         }
     }
 
-    /*
-    off_t file_size=lseek(fd_input,0,SEEK_END);
-    if(file_size == -1){
-        //error
-        return 1;
-    }
-    //restore the offset on the start of file
-    lseek(fd_input,0,SEEK_SET);
-    */
-
     S1=attach_segments(KEY_S1,(num_line_inputfile * 1030)+sizeof(struct Status),&shmid);
-
     if((*S1) == -1){
-        //error
-        return 1;
+        perror(ERROR_GENERIC);
+        _exit(EXIT_FAILURE);
     }
-
     //segment successfully obtained
 
     //transfer file into S1
@@ -54,8 +42,8 @@ int padre(char * input_path, char * output_path){
     S2=attach_segments(KEY_S2,num_line_inputfile*4,&shmid2); //each line contains a key of 32 bit
     pid_t logger_pid;
     if((logger_pid=fork())==-1){
-        //error creating logger
-        return 1;
+        perror(ERROR_GENERIC);
+        _exit(EXIT_FAILURE);
     }
     if(logger_pid==0){
         //logger
@@ -64,8 +52,8 @@ int padre(char * input_path, char * output_path){
         //father
         pid_t figlio_pid;
         if((figlio_pid=fork())==-1){
-            //error creating son
-            return 1;
+            perror(ERROR_GENERIC);
+       		_exit(EXIT_FAILURE);
         }
         if(figlio_pid==0){
             //son
@@ -75,41 +63,43 @@ int padre(char * input_path, char * output_path){
             wait(NULL); //wait for logger
             wait(NULL); //wait for son
 
-
-            bool check = check_keys(num_line_inputfile, ( char *) S1, (char *) S2);
+            bool check = check_keys(num_line_inputfile, (char *) S1, (char *) S2);
 			if (!check){
-                printf("fail\n");
 				//we have also to free memory
                 //delete shared memory for S1
                 if(detach_segments(S1,&shmid)==-1){
-                    //error
-                    return 1;
+                    perror(ERROR_GENERIC);
+        			_exit(EXIT_FAILURE);
                 }
                 //successfully removed shared space for S1
 
                 //delete shared memory for S2
                 if(detach_segments(S2,&shmid2)==-1){
-                    //error
-                    return 1;
+                    perror(ERROR_GENERIC);
+        			_exit(EXIT_FAILURE);
                 }
-                return 1;
+                //successfully removed shared space for S2
+                
+                write(0, ERROR_CHECK_KEYS, SIZE_ERROR_CHECK_KEYS);
+                _exit(EXIT_FAILURE);
 			}
-            //check ok
+			
             save_keys(output_path,(unsigned int *) S2);
             //delete shared memory for S1
             if(detach_segments(S1,&shmid)==-1){
-                //error
-                return 1;
+                perror(ERROR_GENERIC);
+        		_exit(EXIT_FAILURE);
             }
             //successfully removed shared space for S1
-
+            
             //delete shared memory for S2
             if(detach_segments(S2,&shmid2)==-1){
-                //error
-                return 1;
+                perror(ERROR_GENERIC);
+        		_exit(EXIT_FAILURE);
             }
             //successfully removed shared space for S2
-            return 0;
+            
+            _exit(EXIT_SUCCESS);
         }
     }
 }
@@ -120,8 +110,8 @@ int * attach_segments(int key, int size, int * shmid){
     (*shmid)=shmget(key,size,IPC_CREAT|0666);
     //link this memory area to my address space
     if((*shmid) ==-1){
-        //cannot obtain shared memory
-        //return NULL;
+        perror(ERROR_GENERIC);
+        _exit(EXIT_FAILURE);
     }
     return (int *) shmat((*shmid), NULL, 0);
 }
@@ -129,8 +119,8 @@ int * attach_segments(int key, int size, int * shmid){
 int detach_segments(void * locate, int * shmid){
     //deatach this segment from my address space
     if(shmdt(locate)==-1){
-        //errors
-        return -1;
+        perror(ERROR_GENERIC);
+        _exit(EXIT_FAILURE);
     }
     //eliminate this shared memory space
     return shmctl((*shmid),IPC_RMID,(struct shmid_ds *) NULL);
@@ -164,7 +154,6 @@ void load_file(int fd, char * S1, int * * save){
     *save=p; //save this pointer value to update S1
     (*(++p))=0; //set string at 0
     (*(--p))=0; //set grandson
-    return;
 }
 
 void save_keys(char * output_path, unsigned int * S2){
@@ -205,8 +194,8 @@ void save_keys(char * output_path, unsigned int * S2){
         write(fd,"\n",1);
     }
     close(fd);
-    return;
 }
+
 bool check_keys(int num_keys, char * S1, char * S2){
 
 	bool check_result = true;

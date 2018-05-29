@@ -1,27 +1,29 @@
 #include "../include/logger.h"
 
-int logger(){
+void logger(){
     //create message queue
     int msgid=-1;
     if((msgid=msgget(MSG_KEY,(0666|IPC_CREAT|IPC_EXCL)))==-1){
-        //error
-        return 1;
+        perror(ERROR_GENERIC);
+        _exit(EXIT_FAILURE);
     }
     polling_receive(msgid);
-    if(msgctl(msgid,IPC_RMID,(struct msqid_ds *) NULL)==-1) printf("Impossibile eliminare coda di messaggi\n");
-    return 0;
+    if(msgctl(msgid,IPC_RMID,(struct msqid_ds *) NULL)==-1){
+    	perror(ERROR_GENERIC);
+        _exit(EXIT_FAILURE);
+    }
+    _exit(EXIT_SUCCESS);
 }
+
 void polling_receive(int msgid){
     struct Message message;
     struct msqid_ds info;
     int flag=1,num_msg;
     while(flag){
-        //alarm(1); //set alarm
-        //pause();
         stop(1); //wait for 1 sec
         if(msgctl(msgid,IPC_STAT, &info)==-1){
-            //impossible access the queue
-            return;
+            perror(ERROR_GENERIC);
+        	_exit(EXIT_FAILURE);
         }
         num_msg=info.msg_qnum;
         while(num_msg>0){
@@ -42,5 +44,4 @@ void polling_receive(int msgid){
         }
 
     }
-    return;
 }

@@ -1,14 +1,10 @@
 #include "../include/padre.h"
-//#include "../include/logger.h"
-#include "../include/figlio.h"
-#include "../include/nipote.h"
-#include "../include/types.h"
 
-int main(int argc, char * argv[]){
+void main(int argc, char * argv[]){
     if(argc!=3){
-        //error un parameters
-        return 1;
+        write(0, ERROR_INPUT_PARAMETERS, SIZE_ERROR_INPUT_PARAMETERS);
+        _exit(EXIT_FAILURE);
     }
     padre(argv[1],argv[2]);
-    return 0;
+    _exit(EXIT_SUCCESS);
 }

@@ -11,7 +11,6 @@ void stop(int seconds){
         //time is not over, re-set alarm
         return stop(seconds);
     }
-    return;
 }
 
 void no_op(int s){
@@ -24,8 +23,8 @@ void * get_space(struct Memory * info, int byte){
     (*info).id=id;
     //link this memory area to my address space
     if(id ==-1){
-        //cannot obtain shared memory
-        return NULL;
+        perror(ERROR_GENERIC);
+        _exit(EXIT_FAILURE);
     }
     (*info).pointer=shmat(id,NULL,0);
     return (*info).pointer;
@@ -33,8 +32,8 @@ void * get_space(struct Memory * info, int byte){
 
 int rem_space(struct Memory * info){
     if(shmdt((*info).pointer)==-1){
-        //errors
-        return -1;
+        perror(ERROR_GENERIC);
+        _exit(EXIT_FAILURE);
     }
     return shmctl((*info).id,IPC_RMID,(struct shmid_ds *) NULL);
 }

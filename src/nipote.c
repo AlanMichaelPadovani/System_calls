@@ -1,6 +1,6 @@
 #include "../include/nipote.h"
 
-int nipote(int id, int sem){
+void nipote(int id, int sem){
     int my_string;
     sb.sem_num=0;
 	sb.sem_flg=0;
@@ -20,7 +20,7 @@ int nipote(int id, int sem){
             S1--;
             //end nephew
             unlock(sem);
-            return 0;
+            _exit(EXIT_SUCCESS);
         }else{
             //increment id_string
             (*S1)++;
@@ -29,13 +29,13 @@ int nipote(int id, int sem){
             //notify son
             kill(getppid(),SIGUSR1);
             if(clock_gettime(CLOCK_REALTIME,&time_struct)==-1){ //2038 year bug
-                printf("Error getting start time");
                 seconds=0;
             }
             seconds=time_struct.tv_sec;
 
 			unsigned int key = find_key((char *) S1, num_line_inputfile - my_string, sem);//unlock sem inside
-
+			//END CRITICAL SECTION
+			
 			sb.sem_num=1;
 			lock(sem);
 			save_key(key, my_string);
@@ -46,8 +46,6 @@ int nipote(int id, int sem){
             }
             seconds=time_struct.tv_sec-seconds; //take second passed by difference
 			send_timeelapsed(seconds);
-
-			//END CRITICAL SECTION
         }
     }
 }
@@ -57,24 +55,24 @@ int load_string(){
     return (*++S1);
 }
 
-int lock(int sem){
+void lock(int sem){
     //acquire the semaphore
 	sb.sem_op=-1;
 	if(semop(sem,&sb,1)==-1){
 		//error acquiring semaphore
-		return 1;
+		perror(ERROR_GENERIC);
+		_exit(EXIT_FAILURE);
 	}
-    return 0;
 }
 
-int unlock(int sem){
+void unlock(int sem){
     //release the semaphore
     sb.sem_op=1;
     if(semop(sem,&sb,1)==-1){
-        //error acquiring semaphore
-        return 1;
+    	//error releasing semaphore
+    	perror(ERROR_GENERIC);
+        _exit(EXIT_FAILURE);
     }
-    return 0;
 }
 
 unsigned int find_key(char * S1, int offset, int sem){
@@ -92,15 +90,12 @@ unsigned int find_key(char * S1, int offset, int sem){
 	
 	unlock(sem);
 
-  	//printf("plain: %s, crypt: %s\n", plain_text, encoded_text);
-
 	unsigned* plain_text_unsigned = (unsigned*) ((char *) plain_text);
 	unsigned* encoded_text_unsigned = (unsigned*) ((char *) encoded_text);
 
 	unsigned int key;
 	for (key = 0; key < UINT_MAX; key++){
 		if ((*plain_text_unsigned ^ key) == *encoded_text_unsigned){
-			//printf("key: %x, %d\n", key, key);
 			break;
 		}
 	}
@@ -110,8 +105,8 @@ unsigned int find_key(char * S1, int offset, int sem){
 void send_timeelapsed(int seconds){
 	int msgid;
 	if((msgid=msgget(MSG_KEY,0666)) == -1){
-		//can't get the message queue
-		return;
+		perror(ERROR_GENERIC);
+        _exit(EXIT_FAILURE);
 	}
 	struct Message msg;
 	msg.mtype=2;
@@ -139,10 +134,9 @@ void send_timeelapsed(int seconds){
 	msg.text[index]='\0';
 
 	if(msgsnd(msgid,&msg,sizeof(msg)-sizeof(long),0)==-1){
-		//error sending terminate message
-		return;
+		perror(ERROR_GENERIC);
+        _exit(EXIT_FAILURE);
 	}
-	return;
 }
 
 void save_key(unsigned int key, int offset){
@@ -152,6 +146,4 @@ void save_key(unsigned int key, int offset){
     unsigned int * p = (unsigned int *) S2c;
     //set on S2 the key
     *p=key;
-	return;
-
 }

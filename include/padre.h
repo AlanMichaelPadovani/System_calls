@@ -8,7 +8,7 @@
 #include "logger.h"
 #include "figlio.h"
 
-int padre(char * input_path, char * output_path);
+void padre(char * input_path, char * output_path);
 int * attach_segments(int key, int size, int * shmid);
 int detach_segments(void * locate, int * shmid);
 void load_file(int fd, char * S1, int * * save);

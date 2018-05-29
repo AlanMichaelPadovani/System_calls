@@ -1,6 +1,6 @@
 #include "../include/figlio.h"
 
-int figlio(){
+void figlio(){
 	//status_updated​ signal handler of signal SIGUSR1
 	signal(SIGUSR1, status_updated);
 
@@ -10,23 +10,23 @@ int figlio(){
 	sb.sem_op=1;
 	sb.sem_flg=0;
 	if(p == -1 || semop(p,&sb,1)==-1){
-		//error initializing semaphore
-		return 1;
+		perror(ERROR_GENERIC);
+        _exit(EXIT_FAILURE);
 	}
 	
 	sb.sem_num=1;
 	sb.sem_op=1;
 	sb.sem_flg=0;
 	if(p == -1 || semop(p,&sb,1)==-1){
-		//error initializing semaphore
-		return 1;
+		perror(ERROR_GENERIC);
+        _exit(EXIT_FAILURE);
 	}
 
 	//create nephew
 	pid_t nipote1;
 	if((nipote1=fork())==-1){
-		//error creating nephew 1
-		return 1;
+		perror(ERROR_GENERIC);
+        _exit(EXIT_FAILURE);
 	}if(nipote1==0){
 		//nephew 1
 		nipote(1,p);
@@ -35,8 +35,8 @@ int figlio(){
 		//create nephew
 		pid_t nipote2;
 		if((nipote2=fork())==-1){
-			//error creating nephew 2
-			return 1;
+			perror(ERROR_GENERIC);
+        	_exit(EXIT_FAILURE);
 		}if(nipote2==0){
 			//nephew 2
 			nipote(2,p);
@@ -48,25 +48,16 @@ int figlio(){
 			//remove semaphore p
 			int remove = semctl(p, 0, IPC_RMID, NULL);
 			if (remove == -1){
-				//error remove
-				printf("error removing p\n");
-		       	return 1;
+				perror(ERROR_GENERIC);
+        		_exit(EXIT_FAILURE);
 			}
 
-			return 0;
+			_exit(EXIT_SUCCESS);
 		}
 	}
 }
 
 void status_updated(){
-	//acquire the semaphore
-	/*
-	sb.sem_op=-1;
-	if(semop(p,&sb,1)==-1){
-		//error acquiring semaphore
-		return;
-	}*/
-	//CRITICAL SECTION
 	int * temp = S1; //save S1 into a temp variable
 	//read from S1
 	int grandson=*(S1++);
@@ -83,22 +74,13 @@ void status_updated(){
 	write(1,&id_string,sizeof(int));
 	write(1,&message3,sizeof(message3));
 	S1=temp; //restore S1
-
-	//END CRITICAL SECTION
-	//release semaphore
-	/*
-	sb.sem_op=1;
-	if(semop(p,&sb,1)==-1){
-		//error relasing semaphore
-		return;
-	}*/
 }
 
 void send_terminate(){
 	int msgid;
 	if((msgid=msgget(MSG_KEY,0666)) == -1){
-		//can't get the message queue
-		return;
+		perror(ERROR_GENERIC);
+        _exit(EXIT_FAILURE);
 	}
 	struct Message msg;
 	msg.mtype=1;
@@ -110,8 +92,7 @@ void send_terminate(){
 	}
 	msg.text[index]='\0';
 	if(msgsnd(msgid,&msg,sizeof(msg)-sizeof(long),0)==-1){
-		//error sending terminate message
-		return;
+		perror(ERROR_GENERIC);
+        _exit(EXIT_FAILURE);
 	}
-	return;
 }

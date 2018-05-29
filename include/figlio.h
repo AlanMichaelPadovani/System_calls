@@ -10,7 +10,7 @@
 struct sembuf sb;
 int p;
 
-int figlio();
+void figlio();
 void status_updated();
 void send_terminate();
 
