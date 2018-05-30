@@ -1,6 +1,11 @@
-#include "../include/nipote.h"
+#include "../include/nipote_t.h"
 
-void nipote(int id, int sem){
+void * nipote_t(void * pointer){
+    struct Nipote me;
+    me=*((struct Nipote *) pointer);
+    nipote(me.id,me.semaphore);
+    printf("Ciao sono la thread numero: %d\n",me.id);
+    printf("semaphore id: %d\n",me.semaphore);
     int my_string;
     sb.sem_num=0;
 	sb.sem_flg=0;
@@ -9,6 +14,52 @@ void nipote(int id, int sem){
 	time_t start, end;
     struct timespec time_struct; //struct used to retrieve seconds
     time_t seconds;
+    while(1){
+        //acquire semaphore
+        sb.sem_num=0;
+        lock(me.semaphore);
+        //CRITICAL SECTION
+        //access status
+        my_string=load_string();
+        if(my_string==num_line_inputfile){
+            S1--;
+            //end nephew
+            unlock(me.semaphore);
+            pthread_exit(NULL); //end
+        }else{
+            //increment id_string
+            (*S1)++;
+            //set grandson
+            (*(--S1))=me.id;
+            //notify son
+            //tgkill(me.figlio,,SIGUSR1);
+            if(clock_gettime(CLOCK_REALTIME,&time_struct)==-1){ //2038 year bug
+                seconds=0;
+            }
+            seconds=time_struct.tv_sec;
+            unlock(me.semaphore); //to delete
+            /*
+			unsigned int key = find_key((char *) S1, num_line_inputfile - my_string, sem);//unlock sem inside
+			//END CRITICAL SECTION
+
+			sb.sem_num=1;
+			lock(sem);
+			save_key(key, my_string);
+			unlock(sem);
+
+            if(clock_gettime(CLOCK_REALTIME,&time_struct)==-1){ //2038 year bug
+                seconds=0;
+            }
+            seconds=time_struct.tv_sec-seconds; //take second passed by difference
+			send_timeelapsed(seconds);
+            */
+        }
+    }
+    pthread_exit(NULL);
+}
+
+void nipote(int id, int sem){
+    /*
     //acquire semaphore
     while(1){
     	sb.sem_num=0;
@@ -48,6 +99,7 @@ void nipote(int id, int sem){
 			send_timeelapsed(seconds);
         }
     }
+    */
 }
 
 int load_string(){

@@ -1,4 +1,4 @@
-#include "../include/padre.h"
+#include "../include/padre_t.h"
 
 void padre(char * input_path, char * output_path){
     int shmid=-1,fd_input=-1, fd_output=-1; //shmid of the shared memory, file descriptors
@@ -58,7 +58,7 @@ void padre(char * input_path, char * output_path){
         }
         if(figlio_pid==0){
             //son
-			figlio();
+			figlio_t();
         }else{
             //father
             wait(NULL); //wait for logger

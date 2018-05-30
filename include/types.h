@@ -17,4 +17,10 @@ struct Memory{
     void * pointer;
 };
 
+struct Nipote{
+    int id;
+    int semaphore;
+    pthread_t figlio;
+};
+
 #endif
