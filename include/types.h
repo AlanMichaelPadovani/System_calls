@@ -19,7 +19,8 @@ struct Memory{
 
 struct Nipote{
     int id;
-    int semaphore;
+    pthread_mutex_t * lock1;
+    pthread_mutex_t * lock2;
     pthread_t figlio;
 };
 

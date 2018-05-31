@@ -8,12 +8,16 @@
 #include <sys/msg.h>
 #include "nipote_t.h"
 
+int sem_out;
+struct sembuf sembuf_out;
+
 struct Nipote nipote1;
 struct Nipote nipote2;
-struct sembuf sb;
-int p;
+struct Nipote nipote3;
+pthread_mutex_t lock1;
+pthread_mutex_t lock2;
 
-void figlio_t();
+void figlio_t(int sem_out);
 void status_updated();
 void send_terminate();
 

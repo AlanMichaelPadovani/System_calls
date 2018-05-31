@@ -3,28 +3,21 @@
 void * nipote_t(void * pointer){
     struct Nipote me;
     me=*((struct Nipote *) pointer);
-    nipote(me.id,me.semaphore);
-    printf("Ciao sono la thread numero: %d\n",me.id);
-    printf("semaphore id: %d\n",me.semaphore);
     int my_string;
-    sb.sem_num=0;
-	sb.sem_flg=0;
-    sb.sem_num=1;
-	sb.sem_flg=0;
 	time_t start, end;
     struct timespec time_struct; //struct used to retrieve seconds
     time_t seconds;
     while(1){
-        //acquire semaphore
-        sb.sem_num=0;
-        lock(me.semaphore);
+        //acquire lock1
+        pthread_mutex_lock(me.lock1);
         //CRITICAL SECTION
         //access status
         my_string=load_string();
         if(my_string==num_line_inputfile){
             S1--;
             //end nephew
-            unlock(me.semaphore);
+            //release lock
+            pthread_mutex_unlock(me.lock1);
             pthread_exit(NULL); //end
         }else{
             //increment id_string
@@ -32,74 +25,27 @@ void * nipote_t(void * pointer){
             //set grandson
             (*(--S1))=me.id;
             //notify son
-            //tgkill(me.figlio,,SIGUSR1);
+            pthread_kill(me.figlio,SIGUSR1);
             if(clock_gettime(CLOCK_REALTIME,&time_struct)==-1){ //2038 year bug
                 seconds=0;
             }
             seconds=time_struct.tv_sec;
-            unlock(me.semaphore); //to delete
-            /*
-			unsigned int key = find_key((char *) S1, num_line_inputfile - my_string, sem);//unlock sem inside
+
+			unsigned int key = find_key((char *) S1, num_line_inputfile - my_string, me.lock1);//unlock inside
 			//END CRITICAL SECTION
 
-			sb.sem_num=1;
-			lock(sem);
+            pthread_mutex_lock(me.lock2);
 			save_key(key, my_string);
-			unlock(sem);
+            pthread_mutex_unlock(me.lock2);
 
             if(clock_gettime(CLOCK_REALTIME,&time_struct)==-1){ //2038 year bug
                 seconds=0;
             }
             seconds=time_struct.tv_sec-seconds; //take second passed by difference
 			send_timeelapsed(seconds);
-            */
         }
     }
     pthread_exit(NULL);
-}
-
-void nipote(int id, int sem){
-    /*
-    //acquire semaphore
-    while(1){
-    	sb.sem_num=0;
-        lock(sem);
-        //CRITICAL SECTION
-        //access status
-        my_string=load_string();
-        if(my_string==num_line_inputfile){
-            S1--;
-            //end nephew
-            unlock(sem);
-            _exit(EXIT_SUCCESS);
-        }else{
-            //increment id_string
-            (*S1)++;
-            //set grandson
-            (*(--S1))=id;
-            //notify son
-            kill(getppid(),SIGUSR1);
-            if(clock_gettime(CLOCK_REALTIME,&time_struct)==-1){ //2038 year bug
-                seconds=0;
-            }
-            seconds=time_struct.tv_sec;
-
-			unsigned int key = find_key((char *) S1, num_line_inputfile - my_string, sem);//unlock sem inside
-			//END CRITICAL SECTION
-
-			sb.sem_num=1;
-			lock(sem);
-			save_key(key, my_string);
-			unlock(sem);
-
-            if(clock_gettime(CLOCK_REALTIME,&time_struct)==-1){ //2038 year bug
-                seconds=0;
-            }
-            seconds=time_struct.tv_sec-seconds; //take second passed by difference
-			send_timeelapsed(seconds);
-        }
-    }
-    */
 }
 
 int load_string(){
@@ -107,28 +53,8 @@ int load_string(){
     return (*++S1);
 }
 
-void lock(int sem){
-    //acquire the semaphore
-	sb.sem_op=-1;
-	if(semop(sem,&sb,1)==-1){
-		//error acquiring semaphore
-		perror(ERROR_GENERIC);
-		_exit(EXIT_FAILURE);
-	}
-}
-
-void unlock(int sem){
-    //release the semaphore
-    sb.sem_op=1;
-    if(semop(sem,&sb,1)==-1){
-    	//error releasing semaphore
-    	perror(ERROR_GENERIC);
-        _exit(EXIT_FAILURE);
-    }
-}
-
-unsigned int find_key(char * S1, int offset, int sem){
-
+unsigned int find_key(char * S1, int offset, pthread_mutex_t * lock){
+    //STILL in CRITICAL SECTION
 	S1 = S1 - (1030 * offset) + 1;
 
 	char plain_text[4] = {*S1++, *S1++, *S1++, *S1};
@@ -140,8 +66,9 @@ unsigned int find_key(char * S1, int offset, int sem){
 	char encoded_text[4] = {*S1++, *S1++, *S1++, *S1};
 	S1 = S1 + (1030 * offset) - text_size;
 
-	unlock(sem);
-
+    //realease lock
+	pthread_mutex_unlock(lock);
+    //END of CRITICAL SECTION
 	unsigned* plain_text_unsigned = (unsigned*) ((char *) plain_text);
 	unsigned* encoded_text_unsigned = (unsigned*) ((char *) encoded_text);
 

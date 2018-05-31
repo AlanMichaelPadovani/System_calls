@@ -11,8 +11,8 @@ struct sembuf sb;
 
 void nipote(int id, int sem);
 int load_string();
-void lock(int sem);
-void unlock(int sem);
+void lock(int sem, int num);
+void unlock(int sem, int num);
 unsigned int find_key(char * S1, int my_string, int sem);
 void send_timeelapsed(int seconds);
 void save_key(unsigned int key, int offset);

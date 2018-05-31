@@ -2,24 +2,20 @@
 
 void nipote(int id, int sem){
     int my_string;
-    sb.sem_num=0;
-	sb.sem_flg=0;
-    sb.sem_num=1;
 	sb.sem_flg=0;
 	time_t start, end;
     struct timespec time_struct; //struct used to retrieve seconds
     time_t seconds;
     //acquire semaphore
     while(1){
-    	sb.sem_num=0;
-        lock(sem);
+        lock(sem,0);
         //CRITICAL SECTION
         //access status
         my_string=load_string();
         if(my_string==num_line_inputfile){
             S1--;
             //end nephew
-            unlock(sem);
+            unlock(sem,0);
             _exit(EXIT_SUCCESS);
         }else{
             //increment id_string
@@ -36,10 +32,9 @@ void nipote(int id, int sem){
 			unsigned int key = find_key((char *) S1, num_line_inputfile - my_string, sem);//unlock sem inside
 			//END CRITICAL SECTION
 
-			sb.sem_num=1;
-			lock(sem);
+			lock(sem,1);
 			save_key(key, my_string);
-			unlock(sem);
+			unlock(sem,1);
 
             if(clock_gettime(CLOCK_REALTIME,&time_struct)==-1){ //2038 year bug
                 seconds=0;
@@ -55,8 +50,9 @@ int load_string(){
     return (*++S1);
 }
 
-void lock(int sem){
+void lock(int sem, int num){
     //acquire the semaphore
+    sb.sem_num=num;
 	sb.sem_op=-1;
 	if(semop(sem,&sb,1)==-1){
 		//error acquiring semaphore
@@ -65,8 +61,9 @@ void lock(int sem){
 	}
 }
 
-void unlock(int sem){
+void unlock(int sem, int num){
     //release the semaphore
+    sb.sem_num=num;
     sb.sem_op=1;
     if(semop(sem,&sb,1)==-1){
     	//error releasing semaphore
@@ -88,7 +85,7 @@ unsigned int find_key(char * S1, int offset, int sem){
 	char encoded_text[4] = {*S1++, *S1++, *S1++, *S1};
 	S1 = S1 + (1030 * offset) - text_size;
 
-	unlock(sem);
+	unlock(sem,0);
 
 	unsigned* plain_text_unsigned = (unsigned*) ((char *) plain_text);
 	unsigned* encoded_text_unsigned = (unsigned*) ((char *) encoded_text);

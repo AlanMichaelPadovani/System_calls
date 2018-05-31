@@ -2,10 +2,11 @@
 #define UTILITY_H
 
 //KEYS
-#define KEY_S1 1042
-#define KEY_S2 2042
-#define MSG_KEY 30342
-#define KEY_P 4042
+#define KEY_S1 1052
+#define KEY_S2 2052
+#define MSG_KEY 30352
+#define KEY_P 4052
+#define KEY_P_OUT 5052
 
 //MESSAGES
 #define ERROR_GENERIC "Error"

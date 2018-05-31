@@ -7,10 +7,10 @@
 #include <sys/msg.h>
 #include "nipote.h"
 
-struct sembuf sb;
-int p;
+int sem_out,p;
+struct sembuf sembuf_out, sb;
 
-void figlio();
+void figlio(int sem_out);
 void status_updated();
 void send_terminate();
 
