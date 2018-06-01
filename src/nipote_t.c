@@ -71,13 +71,7 @@ unsigned int find_key(char * S1, int offset, pthread_mutex_t * lock){
     //END of CRITICAL SECTION
 	unsigned* plain_text_unsigned = (unsigned*) ((char *) plain_text);
 	unsigned* encoded_text_unsigned = (unsigned*) ((char *) encoded_text);
-
-	long int key;
-	for (key = 0; key <= UINT_MAX; key++){
-		if ((*plain_text_unsigned ^ key) == *encoded_text_unsigned){
-			break;
-		}
-	}
+    start_threads(plain_text_unsigned, encoded_text_unsigned, &key);
 	return key;
 }
 

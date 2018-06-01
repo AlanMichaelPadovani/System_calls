@@ -2,7 +2,7 @@
 #define FIGLIO_T_H
 
 #include <pthread.h>
-#include "utility.h"
+#include "utility_t.h"
 #include <signal.h>
 #include <sys/wait.h>
 #include <sys/msg.h>

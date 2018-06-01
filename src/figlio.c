@@ -2,15 +2,13 @@
 
 void figlio(int out){
 	sem_out=out;
-	sembuf_out.sem_num=0;
-	sembuf_out.sem_flg=0;
+	sb.sem_flg=0;
 	//status_updated​ signal handler of signal SIGUSR1
 	signal(SIGUSR1, status_updated);
 	//create semaphores p
 	p = semget(KEY_P, 2, IPC_CREAT|IPC_EXCL|0666);
 	sb.sem_num=0;
 	sb.sem_op=1;
-	sb.sem_flg=0;
 	//initialize first semaphore for S1
 	if(p == -1 || semop(p,&sb,1)==-1){
 		perror(ERROR_GENERIC);
@@ -19,7 +17,6 @@ void figlio(int out){
 
 	sb.sem_num=1;
 	sb.sem_op=1;
-	sb.sem_flg=0;
 	//initialize second semaphore for S2
 	if(semop(p,&sb,1)==-1){
 		perror(ERROR_GENERIC);
@@ -64,7 +61,6 @@ void figlio(int out){
 void status_updated(){
 	//acquire semafore for S1
 	sb.sem_op=-1;
-	//initialize first semaphore for S1
 	if(semop(p,&sb,1)==-1){
 		perror(ERROR_GENERIC);
         _exit(EXIT_FAILURE);
@@ -80,8 +76,7 @@ void status_updated(){
 	char message2[]=" sta analizzando la ";
 	char message3[]="-esima stringa.\n";
 	//acquire semaphore for stdout
-	sembuf_out.sem_op=-1;
-	if(semop(sem_out,&sembuf_out,1)==-1){
+	if(semop(sem_out,&sb,1)==-1){
 		//error acquiring semaphore
 		perror(ERROR_GENERIC);
 		_exit(EXIT_FAILURE);
@@ -92,15 +87,14 @@ void status_updated(){
 	write(1,&id_string,sizeof(int));
 	write(1,&message3,sizeof(message3));
 	//release semaphore for stdout
-	sembuf_out.sem_op=1;
-	if(semop(sem_out,&sembuf_out,1)==-1){
+	sb.sem_op=1;
+	if(semop(sem_out,&sb,1)==-1){
 		//error releasing semaphore
 		perror(ERROR_GENERIC);
 		_exit(EXIT_FAILURE);
 	}
 	S1=temp; //restore S1
 	//release semafore for S1
-	sb.sem_op=1;
 	//initialize first semaphore for S1
 	if(semop(p,&sb,1)==-1){
 		perror(ERROR_GENERIC);

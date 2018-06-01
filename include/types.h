@@ -24,4 +24,13 @@ struct Nipote{
     pthread_t figlio;
 };
 
+struct Thread{
+    unsigned int * plain_text;
+    unsigned int * encoded_text;
+    unsigned int * key;
+    unsigned int start;
+    unsigned int end;
+    pthread_mutex_t * lock;
+};
+
 #endif

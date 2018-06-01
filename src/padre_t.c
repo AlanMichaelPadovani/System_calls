@@ -90,7 +90,12 @@ void padre(char * input_path, char * output_path){
         			_exit(EXIT_FAILURE);
                 }
                 //successfully removed shared space for S2
-
+                int remove = semctl(sem_out, 0, IPC_RMID, NULL);
+    			if (remove == -1){
+    				perror(ERROR_GENERIC);
+            		_exit(EXIT_FAILURE);
+    			}
+                _exit(EXIT_SUCCESS);
                 write(0, ERROR_CHECK_KEYS, SIZE_ERROR_CHECK_KEYS);
                 _exit(EXIT_FAILURE);
 			}

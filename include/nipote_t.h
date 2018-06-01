@@ -2,7 +2,7 @@
 #define NIPOTE_T_H
 
 #include <pthread.h>
-#include "utility.h"
+#include "utility_t.h"
 #include <signal.h>
 #include <sys/msg.h>
 #include <limits.h>
@@ -10,6 +10,7 @@
 #include <stdio.h>
 
 struct sembuf sb;
+unsigned int key;
 
 void nipote(int id, int sem);
 void * nipote_t(void * pointer);

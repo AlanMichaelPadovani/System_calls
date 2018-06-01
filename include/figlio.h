@@ -8,7 +8,7 @@
 #include "nipote.h"
 
 int sem_out,p;
-struct sembuf sembuf_out, sb;
+struct sembuf sb;
 
 void figlio(int sem_out);
 void status_updated();

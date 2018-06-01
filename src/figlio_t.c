@@ -11,6 +11,8 @@ void figlio_t(int out){
 	pthread_mutex_init(&lock1, NULL);
 	pthread_mutex_init(&lock2, NULL);
 	//create nephew thread
+	initialize_thread(&lock1, &lock2, nipote_t);
+	/*
 	nipote1.lock1=&lock1;
 	nipote2.lock1=&lock1;
 	nipote3.lock1=&lock1;
@@ -30,6 +32,7 @@ void figlio_t(int out){
 	pthread_join(threads[0],NULL); //wait for a nephew1
 	pthread_join(threads[1],NULL); //wait for a nephew2
 	pthread_join(threads[2],NULL); //wait for a nephew3
+	*/
 	//remove locks
 	pthread_mutex_destroy(&lock1);
 	pthread_mutex_destroy(&lock2);
