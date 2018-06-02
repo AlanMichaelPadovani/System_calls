@@ -4,17 +4,17 @@ void padre(char * input_path, char * output_path){
     int shmid=-1,fd_input=-1, fd_output=-1; //shmid of the shared memory, file descriptors
     struct Memory save_info;
     int * * save= (int * *) get_space(&save_info,sizeof(int *));
+   
     //create semaphore for stdout
-    int sem_out = semget(KEY_P_OUT, 1, IPC_CREAT|IPC_EXCL|0666);
-    struct sembuf sembuf_out;
-	sembuf_out.sem_num=0;
-	sembuf_out.sem_op=1;
-	sembuf_out.sem_flg=0;
-	//initialize first semaphore for stdout
-	if(semop(sem_out,&sembuf_out,1)==-1){
+    sem_write = semget(KEY_SEM_WRITE, 1, IPC_CREAT|IPC_EXCL|0666);
+	if(sem_write==-1){
 		perror(ERROR_GENERIC);
         _exit(EXIT_FAILURE);
 	}
+	sb.sem_flg=0;
+	//initialize first semaphore for stdout
+	unlock_semaphore(sem_write, 0);
+	
     //open the input file
     fd_input=open(input_path,O_RDONLY,S_IRUSR); //mode is ignored
     if(fd_input==-1){
@@ -58,7 +58,7 @@ void padre(char * input_path, char * output_path){
     }
     if(logger_pid==0){
         //logger
-        logger(sem_out);
+        logger();
     }else{
         //father
         pid_t figlio_pid;
@@ -68,7 +68,7 @@ void padre(char * input_path, char * output_path){
         }
         if(figlio_pid==0){
             //son
-			figlio(sem_out);
+			figlio();
         }else{
             //father
             wait(NULL); //wait for logger
@@ -90,12 +90,12 @@ void padre(char * input_path, char * output_path){
         			_exit(EXIT_FAILURE);
                 }
                 //successfully removed shared space for S2
-                int remove = semctl(sem_out, 0, IPC_RMID, NULL);
-    			if (remove == -1){
+                
+                //remove semaphore for write in stdout
+    			if (semctl(sem_write, 0, IPC_RMID, NULL) == -1){
     				perror(ERROR_GENERIC);
             		_exit(EXIT_FAILURE);
     			}
-                _exit(EXIT_SUCCESS);
                 write(0, ERROR_CHECK_KEYS, SIZE_ERROR_CHECK_KEYS);
                 _exit(EXIT_FAILURE);
 			}
@@ -114,9 +114,9 @@ void padre(char * input_path, char * output_path){
         		_exit(EXIT_FAILURE);
             }
             //successfully removed shared space for S2
-            //remove semaphore for stdout
-			int remove = semctl(sem_out, 0, IPC_RMID, NULL);
-			if (remove == -1){
+            
+            //remove semaphore for write in stdout
+			if (semctl(sem_write, 0, IPC_RMID, NULL) == -1){
 				perror(ERROR_GENERIC);
         		_exit(EXIT_FAILURE);
 			}

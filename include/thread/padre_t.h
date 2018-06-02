@@ -5,7 +5,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
-#include "logger.h"
+#include "../logger.h"
 #include "figlio_t.h"
 
 void padre(char * input_path, char * output_path);

@@ -1,4 +1,4 @@
-#include "../include/padre_t.h"
+#include "../../include/thread/padre_t.h"
 
 void padre(char * input_path, char * output_path){
     int shmid=-1,fd_input=-1, fd_output=-1; //shmid of the shared memory, file descriptors

@@ -1,6 +1,6 @@
 #include "../include/nipote.h"
 
-void nipote(int id, int sem){
+void nipote(int id){
     int my_string;
 	sb.sem_flg=0;
 	time_t start, end;
@@ -8,14 +8,14 @@ void nipote(int id, int sem){
     time_t seconds;
     //acquire semaphore
     while(1){
-        lock(sem,0);
+        lock(sem_mem,0);
         //CRITICAL SECTION
         //access status
         my_string=load_string();
         if(my_string==num_line_inputfile){
             S1--;
             //end nephew
-            unlock(sem,0);
+            unlock(sem_mem,0);
             _exit(EXIT_SUCCESS);
         }else{
             //increment id_string
@@ -29,12 +29,12 @@ void nipote(int id, int sem){
             }
             seconds=time_struct.tv_sec;
 
-			unsigned int key = find_key((char *) S1, num_line_inputfile - my_string, sem);//unlock sem inside
+			unsigned int key = find_key((char *) S1, num_line_inputfile - my_string);//unlock sem_mem inside
 			//END CRITICAL SECTION
 
-			lock(sem,1);
+			lock(sem_mem,1);
 			save_key(key, my_string);
-			unlock(sem,1);
+			unlock(sem_mem,1);
 
             if(clock_gettime(CLOCK_REALTIME,&time_struct)==-1){ //2038 year bug
                 seconds=0;
@@ -50,29 +50,15 @@ int load_string(){
     return (*++S1);
 }
 
-void lock(int sem, int num){
-    //acquire the semaphore
-    sb.sem_num=num;
-	sb.sem_op=-1;
-	if(semop(sem,&sb,1)==-1){
-		//error acquiring semaphore
-		perror(ERROR_GENERIC);
-		_exit(EXIT_FAILURE);
-	}
+void lock(int sem, int num_sem){
+    lock_semaphore(sem, num_sem);
 }
 
-void unlock(int sem, int num){
-    //release the semaphore
-    sb.sem_num=num;
-    sb.sem_op=1;
-    if(semop(sem,&sb,1)==-1){
-    	//error releasing semaphore
-    	perror(ERROR_GENERIC);
-        _exit(EXIT_FAILURE);
-    }
+void unlock(int sem, int num_sem){
+	unlock_semaphore(sem, num_sem);
 }
 
-unsigned int find_key(char * S1, int offset, int sem){
+unsigned int find_key(char * S1, int offset){
 
 	S1 = S1 - (1030 * offset) + 1;
 
@@ -85,7 +71,7 @@ unsigned int find_key(char * S1, int offset, int sem){
 	char encoded_text[4] = {*S1++, *S1++, *S1++, *S1};
 	S1 = S1 + (1030 * offset) - text_size;
 
-	unlock(sem,0);
+	unlock(sem_mem,0);
 
 	unsigned* plain_text_unsigned = (unsigned*) ((char *) plain_text);
 	unsigned* encoded_text_unsigned = (unsigned*) ((char *) encoded_text);

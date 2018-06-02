@@ -27,8 +27,8 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/sem.h>
+#include "../types.h"
 #include <pthread.h>
-#include "types.h"
 #include <limits.h>
 
 int * S1;

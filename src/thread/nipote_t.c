@@ -1,4 +1,4 @@
-#include "../include/nipote_t.h"
+#include "../../include/thread/nipote_t.h"
 
 void * nipote_t(void * pointer){
     struct Nipote me;

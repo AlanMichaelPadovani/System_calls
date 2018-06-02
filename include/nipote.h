@@ -7,13 +7,11 @@
 #include <limits.h>
 #include <time.h>
 
-struct sembuf sb;
-
-void nipote(int id, int sem);
+void nipote(int id);
 int load_string();
 void lock(int sem, int num);
 void unlock(int sem, int num);
-unsigned int find_key(char * S1, int my_string, int sem);
+unsigned int find_key(char * S1, int my_string);
 void send_timeelapsed(int seconds);
 void save_key(unsigned int key, int offset);
 

@@ -1,28 +1,21 @@
 #include "../include/figlio.h"
 
-void figlio(int out){
-	sem_out=out;
-	sb.sem_flg=0;
+void figlio(){
 	//status_updated​ signal handler of signal SIGUSR1
 	signal(SIGUSR1, status_updated);
+	
 	//create semaphores p
-	p = semget(KEY_P, 2, IPC_CREAT|IPC_EXCL|0666);
-	sb.sem_num=0;
-	sb.sem_op=1;
+	sem_mem = semget(KEY_P, 2, IPC_CREAT|IPC_EXCL|0666);
+	if(sem_mem==-1){
+		perror(ERROR_GENERIC);
+        _exit(EXIT_FAILURE);
+	}
+	sb.sem_flg=0;
 	//initialize first semaphore for S1
-	if(p == -1 || semop(p,&sb,1)==-1){
-		perror(ERROR_GENERIC);
-        _exit(EXIT_FAILURE);
-	}
-
-	sb.sem_num=1;
-	sb.sem_op=1;
+	unlock_semaphore(sem_mem, 0);
 	//initialize second semaphore for S2
-	if(semop(p,&sb,1)==-1){
-		perror(ERROR_GENERIC);
-        _exit(EXIT_FAILURE);
-	}
-	sb.sem_num=0; //set sb to first semaphore for signal
+	unlock_semaphore(sem_mem, 1);
+	
 	//create nephew
 	pid_t nipote1;
 	if((nipote1=fork())==-1){
@@ -30,7 +23,7 @@ void figlio(int out){
         _exit(EXIT_FAILURE);
 	}if(nipote1==0){
 		//nephew 1
-		nipote(1,p);
+		nipote(1);
 	}else{
 		//son
 		//create nephew
@@ -40,15 +33,15 @@ void figlio(int out){
         	_exit(EXIT_FAILURE);
 		}if(nipote2==0){
 			//nephew 2
-			nipote(2,p);
+			nipote(2);
 		}else{
 			//son
 			wait(NULL); //wait for a nephew
 			wait(NULL); //wait for the other nephew
 			send_terminate();
+			
 			//remove semaphores p
-			int remove = semctl(p, 0, IPC_RMID, NULL);
-			if (remove == -1){
+			if (semctl(sem_mem, 0, IPC_RMID, NULL) == -1){
 				perror(ERROR_GENERIC);
         		_exit(EXIT_FAILURE);
 			}
@@ -60,46 +53,33 @@ void figlio(int out){
 
 void status_updated(){
 	//acquire semafore for S1
-	sb.sem_op=-1;
-	if(semop(p,&sb,1)==-1){
-		perror(ERROR_GENERIC);
-        _exit(EXIT_FAILURE);
-	}
+	lock_semaphore(sem_mem, 0);
+	
 	int * temp = S1; //save S1 into a temp variable
 	//read from S1
 	int grandson=*(S1++);
+	S1=temp; //restore S1
 	//set in ascii
 	grandson=grandson+48;
 	int id_string=*S1;
+	//release semafore for S1
+	unlock_semaphore(sem_mem, 0);
 	id_string=id_string+48;
 	char message1[]="Il nipote ";
 	char message2[]=" sta analizzando la ";
 	char message3[]="-esima stringa.\n";
-	//acquire semaphore for stdout
-	if(semop(sem_out,&sb,1)==-1){
-		//error acquiring semaphore
-		perror(ERROR_GENERIC);
-		_exit(EXIT_FAILURE);
-	}
+    
+    //acquire semaphore for stdout
+    lock_semaphore(sem_write, 0);
+    
 	write(1,&message1,sizeof(message1));
 	write(1,&grandson,sizeof(int));
 	write(1,&message2,sizeof(message2));
 	write(1,&id_string,sizeof(int));
 	write(1,&message3,sizeof(message3));
+	
 	//release semaphore for stdout
-	sb.sem_op=1;
-	if(semop(sem_out,&sb,1)==-1){
-		//error releasing semaphore
-		perror(ERROR_GENERIC);
-		_exit(EXIT_FAILURE);
-	}
-	S1=temp; //restore S1
-	//release semafore for S1
-	//initialize first semaphore for S1
-	if(semop(p,&sb,1)==-1){
-		perror(ERROR_GENERIC);
-        _exit(EXIT_FAILURE);
-	}
+    unlock_semaphore(sem_write, 0);
 }
 
 void send_terminate(){

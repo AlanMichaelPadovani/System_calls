@@ -1,4 +1,4 @@
-#include "../include/figlio_t.h"
+#include "../../include/thread/figlio_t.h"
 
 void figlio_t(int out){
 	sem_out=out;

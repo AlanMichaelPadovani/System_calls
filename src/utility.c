@@ -37,3 +37,25 @@ int rem_space(struct Memory * info){
     }
     return shmctl((*info).id,IPC_RMID,(struct shmid_ds *) NULL);
 }
+
+void lock_semaphore(int sem, int num_sem){
+	//acquire the semaphore
+    sb.sem_num=num_sem;
+	sb.sem_op=-1;
+	if(semop(sem,&sb,1)==-1){
+		//error acquiring semaphore
+		perror(ERROR_GENERIC);
+		_exit(EXIT_FAILURE);
+	}
+}
+
+void unlock_semaphore(int sem, int num_sem){
+	//release the semaphore
+    sb.sem_num=num_sem;
+    sb.sem_op=1;
+    if(semop(sem,&sb,1)==-1){
+    	//error releasing semaphore
+    	perror(ERROR_GENERIC);
+        _exit(EXIT_FAILURE);
+    }
+}

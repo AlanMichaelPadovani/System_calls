@@ -1,4 +1,4 @@
-#include "../include/padre_t.h"
+#include "../../include/thread/padre_t.h"
 
 void main(int argc, char * argv[]){
     if(argc!=3){

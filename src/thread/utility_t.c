@@ -1,4 +1,4 @@
-#include "../include/utility_t.h"
+#include "../../include/thread/utility_t.h"
 
 void initialize_thread(pthread_mutex_t * lock1, pthread_mutex_t * lock2, void * (*start_routine)(void *)){
     int i=0;
