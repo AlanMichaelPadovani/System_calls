@@ -1,37 +1,76 @@
-PROGRAM = key_finder
-OBJ := main.o figlio.o logger.o nipote.o padre.o utility.o
+### SOURCES ###
+
+SRCS := utility.c padre.c logger.c figlio.c nipote.c main.c
+OBJS := $(SRCS:.c=.o)
+SRCS_THREAD := utility_t.c padre_t.c logger.c figlio_t.c nipote_t.c main_t.c
+OBJS_THREAD := $(SRCS_THREAD:.c=.o)
+
+### CONFIGURATION ###
+
+PROGRAM := key_finder
+PROGRAM_THREAD := key_finder_t
+CC := gcc
 LD := gcc
-#CFLAGS :=
+CFLAGS := -c
+LDFLAGS := -o
+LDFLAGS_THREAD := -pthread $(LDFLAGS)
 DOXYFILE = doxygen.cfg
 
-%.o: ./include/%.c
-	@echo Compiling... $< -> $@
-	$(CC) $(CFLAGS) -c $< -o $@
+### INTERMEDIATE TARGETS ###
 
-$(PROGRAM): $(OBJ)
-	@echo Linking $PROGRAM...
-	$(LD) $(LDFLAGS) $(OBJ) -o $PROGRAM
+%.o: ./src/%.c
+	@echo Compiling $@...
+	$(CC) $(CFLAGS) $(LDFLAGS) $@ $^
 
-all: $PROGRAM
+$(PROGRAM): $(OBJS)
+	@echo Linking $@...
+	@$(LD) $(LDFLAGS) $@ $^
+	@mkdir -p ./build
+	@mv $^ ./build
+	@mv $@ ./build
+
+%.o: ./src/thread/%.c
+	@echo Compiling $@...
+	$(CC) $(CFLAGS) $(LDFLAGS) $@ $^
+
+$(PROGRAM_THREAD): $(OBJS_THREAD)
+	@echo Linking $@...
+	@$(LD) $(LDFLAGS_THREAD) $@ $^
+	@mkdir -p ./build/thread
+	@mv $^ ./build/thread
+	@mv $@ ./build/thread
+
+### TARGETS ###
+
+all: $(PROGRAM)
 
 clean:
 	@echo Cleaning...
-	@$(RM) *.o $PROGRAM
+	@rm -fr ./bin/*
+	@rm -fr ./build/*
 
 doc:
 	@echo Documenting...
 	doxygen $(DOXYFILE)
-	
+
+help:
+	@echo Targets:
+	@echo all
+	@echo clean
+	@echo doc
+	@echo help
+	@echo install
+	@echo threads
+
 install:
 	@echo Installing...
-	@mkdir -p bin
-	mv $(PROGRAM) ./bin
+	@mkdir -p ./bin/thread
+	cp ./build/$(PROGRAM) bin
+	cp ./build/thread/$(PROGRAM_THREAD) ./bin/thread
 
-threads:
-	@echo TODO
+threads: $(PROGRAM_THREAD)
 
-.PHONY: help
+### PHONY TARGETS ###
 
-help: makefile
-	@sed -n $<
+.PHONY: all clean doc help install threads
 
