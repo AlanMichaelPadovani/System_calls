@@ -2,7 +2,7 @@
 
 SRCS := utility.c padre.c logger.c figlio.c nipote.c main.c
 OBJS := $(SRCS:.c=.o)
-SRCS_THREAD := utility_t.c padre_t.c logger.c figlio_t.c nipote_t.c main_t.c
+SRCS_THREAD := utility.c padre_t.c logger.c figlio_t.c nipote_t.c main_t.c
 OBJS_THREAD := $(SRCS_THREAD:.c=.o)
 
 ### CONFIGURATION ###
@@ -14,7 +14,7 @@ LD := gcc
 CFLAGS := -c
 LDFLAGS := -o
 LDFLAGS_THREAD := -pthread $(LDFLAGS)
-DOXYFILE = doxygen.cfg
+DOXYFILE := doxygen.cfg
 
 ### INTERMEDIATE TARGETS ###
 
@@ -29,7 +29,7 @@ $(PROGRAM): $(OBJS)
 	@mv $^ ./build
 	@mv $@ ./build
 
-%.o: ./src/thread/%.c
+%_t.o: ./src/thread/%_t.c
 	@echo Compiling $@...
 	$(CC) $(CFLAGS) $(LDFLAGS) $@ $^
 
@@ -64,9 +64,14 @@ help:
 
 install:
 	@echo Installing...
-	@mkdir -p ./bin/thread
-	cp ./build/$(PROGRAM) bin
-	cp ./build/thread/$(PROGRAM_THREAD) ./bin/thread
+ifneq ($(wildcard ./build/$(PROGRAM)),)
+		@mkdir -p ./bin
+		@cp ./build/$(PROGRAM) bin
+endif
+ifneq ($(wildcard ./build/thread/$(PROGRAM_THREAD)),)
+		@mkdir -p ./bin/thread
+		@cp ./build/thread/$(PROGRAM_THREAD) ./bin/thread
+endif
 
 threads: $(PROGRAM_THREAD)
 
