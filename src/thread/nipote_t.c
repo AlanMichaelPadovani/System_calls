@@ -9,7 +9,10 @@ void * nipote_t(void * pointer){
     time_t seconds;
     while(1){
         //acquire lock1
-        pthread_mutex_lock(me.lock1);
+        if (pthread_mutex_lock(me.lock1) != 0){
+        	perror(ERROR_GENERIC);
+        	_exit(EXIT_FAILURE);
+        }
         //CRITICAL SECTION
         //access status
         my_string=load_string();
@@ -17,7 +20,10 @@ void * nipote_t(void * pointer){
             S1--;
             //end nephew
             //release lock
-            pthread_mutex_unlock(me.lock1);
+            if (pthread_mutex_unlock(me.lock1) != 0){
+		    	perror(ERROR_GENERIC);
+		    	_exit(EXIT_FAILURE);
+		    }
             pthread_exit(NULL); //end
         }else{
             //increment id_string
@@ -25,7 +31,10 @@ void * nipote_t(void * pointer){
             //set grandson
             (*(--S1))=me.id;
             //notify son
-            pthread_kill(me.figlio,SIGUSR1);
+             if (pthread_kill(me.figlio,SIGUSR1) != 0){
+		    	perror(ERROR_GENERIC);
+		    	_exit(EXIT_FAILURE);
+		    }
             if(clock_gettime(CLOCK_REALTIME,&time_struct)==-1){ //2038 year bug
                 seconds=0;
             }
@@ -34,9 +43,15 @@ void * nipote_t(void * pointer){
 			unsigned int key = find_key((char *) S1, num_line_inputfile - my_string, me.lock1);//unlock inside
 			//END CRITICAL SECTION
 
-            pthread_mutex_lock(me.lock2);
+            if (pthread_mutex_lock(me.lock2) != 0){
+		    	perror(ERROR_GENERIC);
+		    	_exit(EXIT_FAILURE);
+		    }
 			save_key(key, my_string);
-            pthread_mutex_unlock(me.lock2);
+			if (pthread_mutex_unlock(me.lock2) != 0){
+		    	perror(ERROR_GENERIC);
+		    	_exit(EXIT_FAILURE);
+		    }
 
             if(clock_gettime(CLOCK_REALTIME,&time_struct)==-1){ //2038 year bug
                 seconds=0;
@@ -67,7 +82,10 @@ unsigned int find_key(char * S1, int offset, pthread_mutex_t * lock){
 	S1 = S1 + (1030 * offset) - text_size;
 
     //realease lock
-	pthread_mutex_unlock(lock);
+	if (pthread_mutex_unlock(lock) != 0){
+    	perror(ERROR_GENERIC);
+    	_exit(EXIT_FAILURE);
+    }
     //END of CRITICAL SECTION
 	unsigned* plain_text_unsigned = (unsigned*) ((char *) plain_text);
 	unsigned* encoded_text_unsigned = (unsigned*) ((char *) encoded_text);
@@ -119,4 +137,77 @@ void save_key(unsigned int key, int offset){
     unsigned int * p = (unsigned int *) S2c;
     //set on S2 the key
     *p=key;
+}
+
+void start_threads(unsigned int * plain_text, unsigned int * encoded_text, unsigned int * key){
+    struct Thread args[NUM_THREAD_KEY];
+    pthread_t threads[NUM_THREAD_KEY];
+    //inizialize lock
+    if (pthread_mutex_init(&end_thread,NULL) != 0){
+    	perror(ERROR_GENERIC);
+    	_exit(EXIT_FAILURE);
+    }
+    //acquire lock
+    if (pthread_mutex_lock(&end_thread) != 0){
+    	perror(ERROR_GENERIC);
+    	_exit(EXIT_FAILURE);
+    }
+    unsigned int start=0;
+    int i=0;
+    int step=(UINT_MAX/NUM_THREAD_KEY);
+    for(i; i<NUM_THREAD_KEY-1; i++){
+        args[i].plain_text=plain_text;
+        args[i].encoded_text=encoded_text;
+        args[i].key=key;
+        args[i].start=start;
+        args[i].end=start+step;
+        args[i].lock=&end_thread;
+        start=start+step+1;
+        if (pthread_create(&threads[i],NULL,find_key_thread,(void *) &(args[i])) != 0){
+        	perror(ERROR_GENERIC);
+        }
+    }
+    args[i].plain_text=plain_text;
+    args[i].encoded_text=encoded_text;
+    args[i].key=key;
+    args[i].start=start;
+    args[i].end=UINT_MAX;
+    args[i].lock=&end_thread;
+    if (pthread_create(&threads[i],NULL,find_key_thread,(void *) &(args[i])) != 0){
+   		perror(ERROR_GENERIC);
+   	}
+    //now all thread are started
+	if (pthread_mutex_lock(&end_thread) != 0){//this make it wait until the thread release lock
+    	perror(ERROR_GENERIC);
+    	_exit(EXIT_FAILURE);
+    }
+	
+    //key is found, kill all the remaining thread
+    for(i=0; i<NUM_THREAD_KEY; i++){
+        if(pthread_cancel(threads[i]) != 0){
+			perror(ERROR_GENERIC);
+        }
+    }
+    
+    if (pthread_mutex_destroy(&end_thread) != 0){
+    	perror(ERROR_GENERIC);
+    	_exit(EXIT_FAILURE);
+    }
+}
+
+void * find_key_thread(void * pointer){
+    struct Thread me = * ((struct Thread *) pointer);
+    long int key;
+    for (key = me.start; key <= me.end; key++){
+		if ((*(me.plain_text) ^ key) == *(me.encoded_text)){
+            *(me.key) = (unsigned int) key;
+            //release semaphore
+            if (pthread_mutex_unlock(me.lock) != 0){
+				perror(ERROR_GENERIC);
+				_exit(EXIT_FAILURE);
+			}
+			pthread_exit(NULL);
+		}
+	}
+    pthread_exit(NULL);
 }

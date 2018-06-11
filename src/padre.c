@@ -4,7 +4,7 @@ void padre(char * input_path, char * output_path){
     int shmid=-1,fd_input=-1, fd_output=-1; //shmid of the shared memory, file descriptors
     struct Memory save_info;
     int * * save= (int * *) get_space(&save_info,sizeof(int *));
-   
+
     //create semaphore for stdout
     sem_write = semget(KEY_SEM_WRITE, 1, IPC_CREAT|IPC_EXCL|0666);
 	if(sem_write==-1){

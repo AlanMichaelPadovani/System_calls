@@ -2,7 +2,7 @@
 #define FIGLIO_T_H
 
 #include <pthread.h>
-#include "utility_t.h"
+#include "../utility.h"
 #include <signal.h>
 #include <sys/wait.h>
 #include <sys/msg.h>
@@ -17,8 +17,10 @@ struct Nipote nipote3;
 pthread_mutex_t lock1;
 pthread_mutex_t lock2;
 
-void figlio_t(int sem_out);
+void figlio_t();
 void status_updated();
 void send_terminate();
+
+void initialize_thread(pthread_mutex_t * lock1, pthread_mutex_t * lock2, void * (*start_routine)(void *));
 
 #endif
