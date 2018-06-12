@@ -7,7 +7,9 @@ void logger(){
         perror(ERROR_GENERIC);
         _exit(EXIT_FAILURE);
     }
+    //start listening message
     polling_receive(msgid);
+    //end research remove message queue
     if(msgctl(msgid,IPC_RMID,(struct msqid_ds *) NULL)==-1){
     	perror(ERROR_GENERIC);
         _exit(EXIT_FAILURE);
@@ -22,15 +24,16 @@ void polling_receive(int msgid){
     while(flag){
         stop(1); //wait for 1 sec
         if(msgctl(msgid,IPC_STAT, &info)==-1){
+            //error obtaining message queue
             perror(ERROR_GENERIC);
         	_exit(EXIT_FAILURE);
         }
         num_msg=info.msg_qnum;
-        
         //acquire semaphore for stdout
         lock_semaphore(sem_write, 0);
-        
+        //loop on messages
         while(num_msg>0){
+            //read message
             msgrcv(msgid, &message, sizeof(struct Message) - sizeof(long), 0,IPC_NOWAIT);
             if(message.mtype == 1){
                 //terminate

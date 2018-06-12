@@ -21,11 +21,12 @@ void * get_space(struct Memory * info, int byte){
     //ask at the OS for memory
     int id=shmget((*info).key,byte,IPC_CREAT|0666);
     (*info).id=id;
-    //link this memory area to my address space
+    //check if memory has been obtained
     if(id ==-1){
         perror(ERROR_GENERIC);
         _exit(EXIT_FAILURE);
     }
+    //link this memory area to my address space
     (*info).pointer=shmat(id,NULL,0);
     return (*info).pointer;
 }

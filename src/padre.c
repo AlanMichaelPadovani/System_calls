@@ -2,8 +2,8 @@
 
 void padre(char * input_path, char * output_path){
     int shmid=-1,fd_input=-1, fd_output=-1; //shmid of the shared memory, file descriptors
-    struct Memory save_info;
-    int * * save= (int * *) get_space(&save_info,sizeof(int *));
+    struct Memory save_info; //struct used for manage memory
+    int * * save= (int * *) get_space(&save_info,sizeof(int *)); //obtain memory
 
     //create semaphore for stdout
     sem_write = semget(KEY_SEM_WRITE, 1, IPC_CREAT|IPC_EXCL|0666);
@@ -14,7 +14,7 @@ void padre(char * input_path, char * output_path){
 	sb.sem_flg=0;
 	//initialize first semaphore for stdout
 	unlock_semaphore(sem_write, 0);
-	
+
     //open the input file
     fd_input=open(input_path,O_RDONLY,S_IRUSR); //mode is ignored
     if(fd_input==-1){
@@ -33,8 +33,9 @@ void padre(char * input_path, char * output_path){
         }
     }
 
+    //obtain shared memory to storage input file and the Status struct
     S1=attach_segments(KEY_S1,(num_line_inputfile * 1030)+sizeof(struct Status),&shmid);
-    int * S1_start = S1;
+    int * S1_start = S1; //save the start of file in S1 in order to give it to son
     if((*S1) == -1){
         perror(ERROR_GENERIC);
         _exit(EXIT_FAILURE);
@@ -47,12 +48,13 @@ void padre(char * input_path, char * output_path){
     close(fd_input); //close file input
 
     S1=*save; //set s1 to point at the next address after end of file in S1
-    rem_space(&save_info);
+    rem_space(&save_info); //no longer needed
     //create S2 in order to store the keys
     int shmid2=-1;
     S2=attach_segments(KEY_S2,num_line_inputfile*4,&shmid2); //each line contains a key of 32 bit
     pid_t logger_pid;
     if((logger_pid=fork())==-1){
+        //error creating logger
         perror(ERROR_GENERIC);
         _exit(EXIT_FAILURE);
     }
@@ -63,6 +65,7 @@ void padre(char * input_path, char * output_path){
         //father
         pid_t figlio_pid;
         if((figlio_pid=fork())==-1){
+            //error creating son
             perror(ERROR_GENERIC);
        		_exit(EXIT_FAILURE);
         }
@@ -90,7 +93,7 @@ void padre(char * input_path, char * output_path){
         			_exit(EXIT_FAILURE);
                 }
                 //successfully removed shared space for S2
-                
+
                 //remove semaphore for write in stdout
     			if (semctl(sem_write, 0, IPC_RMID, NULL) == -1){
     				perror(ERROR_GENERIC);
@@ -114,7 +117,7 @@ void padre(char * input_path, char * output_path){
         		_exit(EXIT_FAILURE);
             }
             //successfully removed shared space for S2
-            
+
             //remove semaphore for write in stdout
 			if (semctl(sem_write, 0, IPC_RMID, NULL) == -1){
 				perror(ERROR_GENERIC);
@@ -126,7 +129,6 @@ void padre(char * input_path, char * output_path){
 }
 
 int * attach_segments(int key, int size, int * shmid){
-
     //ask at the OS for the shared memory segment
     (*shmid)=shmget(key,size,IPC_CREAT|0666);
     //link this memory area to my address space
@@ -185,6 +187,7 @@ void save_keys(char * output_path, unsigned int * S2){
     char prefix[]="0x";
     char key7, key6, key5, key4, key3, key2, key1, key0;
     int i;
+    //split the 32 bit key in 8 4bit variables in order to map as char
     for(i=0; i< num_line_inputfile; i++, S2++){
         key7 = (((*S2 & 0xF0000000) >> 28) & 0x0000000F)+48;
         if(key7 > '9') key7=key7+7; //set HEX digit
