@@ -25,11 +25,11 @@
 
 /// @defgroup Keys
 /// @{
-#define KEY_S1 621
-#define KEY_S2 7211
-#define MSG_KEY 821
-#define KEY_P 421
-#define KEY_SEM_WRITE 121
+#define KEY_S1 50056211
+#define KEY_S2 705031
+#define MSG_KEY 3050321
+#define KEY_P 596501
+#define KEY_SEM_WRITE 4650011
 /// @}
 
 /// @defgroup Messaggi
@@ -74,7 +74,7 @@ typedef int bool;
 void stop(int seconds);
 
 /**
- * @brief TODOTODO
+ * @brief TODO
  * @param
  */
 void no_op(int s);
@@ -93,16 +93,16 @@ void * get_space(struct Memory * info, int byte);
 int rem_space(struct Memory * info);
 
 /**
- * @brief Acquire the semaphore passed as input
- * @param semaphore
- * @param number of semaphore
+ * @brief Acquire del semaforo passato in input
+ * @param sem: semaforo
+ * @param num_sem: numero del semaforo nell'insieme
  */
 void lock_semaphore(int sem, int num_sem);
 
 /**
- * @brief Release the semaphore passed as input
- * @param semaphore
- * @param number of semaphore
+ * @brief Release del semaforo passato in input
+ * @param sem: semaforo
+ * @param num_sem: numero del semaforo nell'insieme
  */
 void unlock_semaphore(int sem, int num_sem);
 

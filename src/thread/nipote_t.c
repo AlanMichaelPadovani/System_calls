@@ -189,10 +189,11 @@ void start_threads(unsigned int * plain_text, unsigned int * encoded_text, unsig
         }
     }
     
-    if (pthread_mutex_destroy(&end_thread) != 0){
+    int destroy_return = pthread_mutex_destroy(&end_thread);
+    if (destroy_return != 0 && destroy_return != EBUSY){
     	perror(ERROR_GENERIC);
-    	_exit(EXIT_FAILURE);
-    }
+		_exit(EXIT_FAILURE);
+	}
 }
 
 void * find_key_thread(void * pointer){

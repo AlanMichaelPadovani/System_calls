@@ -59,10 +59,10 @@ void status_updated(){
 	int * temp = S1; //save S1 into a temp variable
 	//read from S1
 	int grandson=*(S1++);
-	S1=temp; //restore S1
 	//set in ascii
 	grandson=grandson+48;
 	int id_string=*S1;
+	S1=temp; //restore S1
 	//release semafore for S1
 	unlock_semaphore(sem_mem, 0);
 	id_string=id_string+48;
