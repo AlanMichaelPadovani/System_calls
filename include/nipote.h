@@ -9,7 +9,7 @@
 #include <limits.h>
 #include <time.h>
 
-/// @defgroup Metodi_Nipote
+/// @defgroup Metodi_Nipote Metodi Nipote
 /// @{
 /// Funzioni del processo Nipote
 

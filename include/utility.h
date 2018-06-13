@@ -3,6 +3,19 @@
 
 /// @file
 
+
+/*! \mainpage Sistemi Operativi 2017/2018
+ *
+ * \section struttura_sec Struttura Progetto
+ *
+ * \subsection step1 Versione base
+ * blabla....
+ * \subsection step2 Versione con thread 
+ * etc...
+ *
+ */
+
+
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -13,7 +26,7 @@
 #include <sys/sem.h>
 #include "types.h"
 
-/// @defgroup Config_thread
+/// @defgroup Config_thread Parametri Configurazione thread
 /// @{
 /// Parametri di configurazione per versione con thread
 
@@ -36,13 +49,13 @@
 /// @{
 #define ERROR_GENERIC "Error"
 #define ERROR_INPUT_PARAMETERS "Error: I file di input e di output sono parametri obbligatori.\n"
-#define SIZE_ERROR_INPUT_PARAMETERS 63
 #define ERROR_CHECK_KEYS "Error: Una delle chiavi trovate non è corretta per l'intera stringa.\n"
-#define SIZE_ERROR_CHECK_KEYS 69
 /// @}
+#define SIZE_ERROR_INPUT_PARAMETERS 63
+#define SIZE_ERROR_CHECK_KEYS 69
 
 
-/// @defgroup Variabili_comuni
+/// @defgroup Var_comuni Variabili comuni
 /// @{
 /// Puntatore memoria condivisa S1
 int * S1;
@@ -62,7 +75,7 @@ typedef int bool;
 #define true 1
 #define false 0
 
-/// @defgroup Metodi_utility
+/// @defgroup Metodi_utility Metodi di utility
 /// @{
 /// Metodi comuni utilizzati in vari punti del codice
 

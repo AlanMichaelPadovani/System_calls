@@ -13,7 +13,7 @@
 pthread_mutex_t lock1;
 pthread_mutex_t lock2;
 
-/// @defgroup Metodi_Figlio_t
+/// @defgroup Metodi_Figlio_t Metodi Figlio_t
 /// @{
 /// Funzioni del processo Figlio_t
 

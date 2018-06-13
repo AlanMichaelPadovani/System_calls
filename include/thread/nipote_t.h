@@ -14,7 +14,7 @@
 unsigned int key;
 pthread_mutex_t end_thread;
 
-/// @defgroup Metodi_Nipote_t
+/// @defgroup Metodi_Nipote_t Metodi Nipote_t
 /// @{
 /// Funzioni del processo Nipote_t
 

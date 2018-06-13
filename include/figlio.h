@@ -9,7 +9,7 @@
 #include <sys/msg.h>
 #include "nipote.h"
 
-/// @defgroup Metodi_Figlio
+/// @defgroup Metodi_Figlio Metodi Figlio
 /// @{
 /// Funzioni del processo Figlio
 

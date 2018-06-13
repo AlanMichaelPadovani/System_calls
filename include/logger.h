@@ -6,7 +6,7 @@
 #include "utility.h"
 #include <sys/msg.h>
 
-/// @defgroup Metodi_Logger
+/// @defgroup Metodi_Logger Metodi Logger
 /// @{
 /// Funzioni del processo Logger
 

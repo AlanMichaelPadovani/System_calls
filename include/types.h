@@ -24,8 +24,8 @@ struct Message{
  * @brief Struttura che contiene la chiave e l'identificatore del segmento di memoria e il puntatore alla zona di memoria stessa
 */
 struct Memory{
-    key_t key;
-    int id;
+    key_t key; /**DESCRIZIONE A PARTE SOTTO*/
+    int id; ///DESCRIZIONE SUBITO SOTTO
     void * pointer;
 };
 
