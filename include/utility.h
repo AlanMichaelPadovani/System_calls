@@ -67,28 +67,28 @@ typedef int bool;
 /// Metodi comuni utilizzati in vari punti del codice
 
 /**
- * @brief TODO
- * @param
- * @return
+ * @brief Metodo che implementa una wait
+ * @param seconds: Il numero di secondi per cui il chiamante verrà bloccato
  */
 void stop(int seconds);
 
 /**
- * @brief TODO
- * @param
+ * @brief Funzione che intercetta la fine del tempo di attesa
+ * @param s: La signal intercettata
  */
 void no_op(int s);
 
 /**
- * @brief TODO
- * @param
- * @param
+ * @brief Metodo che crea un segmento di memoria condivisa
+ * @param info: Il puntatore alla struttura che conterrà tutte le informazioni relative al segmento creato
+ * @param byte: La dimensione in byte dello spazio richiesto
  */
 void * get_space(struct Memory * info, int byte);
 
 /**
- * @brief TODO
- * @param
+ * @brief Metodo che elimina un segmento di memoria condivisa
+ * @param info: Il puntatore alla struttura che contiene le informazioni della zona di memoria da eliminare
+ * @return -1 in caso di errore
  */
 int rem_space(struct Memory * info);
 

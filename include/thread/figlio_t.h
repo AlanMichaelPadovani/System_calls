@@ -34,10 +34,10 @@ void send_terminate();
 
 
 /**
- * @brief TODO
- * @param
- * @param
- * @param
+ * @brief Metodo che crea le thread nipoti
+ * @param lock1: Un lock per proteggere la zona di memoria di S1
+ * @param lock2: Un lock per proteggere la zona di memoria di S2
+ * @param start_routine: Il metodo che verrà eseguito dalle thread
  */
 void initialize_thread(pthread_mutex_t * lock1, pthread_mutex_t * lock2, void * (*start_routine)(void *));
 

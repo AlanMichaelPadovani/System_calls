@@ -20,7 +20,7 @@ pthread_mutex_t end_thread;
 
 /**
  * @brief Wrapper per processo Nipote_t
- * @param pointer: TODO
+ * @param pointer: Puntatore alla struttura contente informazioni necessarie alla thread
  */
 void * nipote_t(void * pointer);
 
@@ -32,8 +32,11 @@ int load_string();
 
 
 /**
- * @brief TODO
- * @return 
+ * @brief Cerca la chiave della stringa
+ * @param S1: La zona di memoria in cui è presente il file di input
+ * @param my_string: L'indice della riga che deve elaborare
+ * @param lock: Il lock condiviso tra le thread
+ * @return
  */
 unsigned int find_key(char * S1, int my_string, pthread_mutex_t * lock);
 
@@ -51,14 +54,17 @@ void send_timeelapsed(int seconds);
 void save_key(unsigned int key, int offset);
 
 /**
- * @brief TODO
- * @return 
+ * @brief Crea altre thread per dividere la ricerca delle chiavi
+ * @param plain_text: Puntatore alla parte di testo in chiaro
+ * @param encoded_text: Puntatore alla parte di testo cifrata
+ * @param key: Puntatore alla zona di memoria dove andrà inserita la chiave trovata
+ * @return
  */
 void start_threads(unsigned int * plain_text, unsigned int * encoded_text, unsigned int * key);
 
 /**
- * @brief TODO
- * @return 
+ * @brief Metodo che trova la chiave
+ * @param pointer: La struttura con le informazioni necessarie per la thread
  */
 void * find_key_thread(void * pointer);
 

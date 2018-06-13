@@ -17,7 +17,7 @@ void logger();
 
 /**
  * @brief scarica la coda di messaggi e la stampa su stdout
- * @param msgid: TODO
+ * @param msgid: l'identificatore della coda di messaggi da monitorare
  */
 void polling_receive(int msgid);
 

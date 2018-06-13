@@ -2,8 +2,8 @@
 #define TYPES_H
 
 /**
- * @struct Status 
- * @brief TODO
+ * @struct Status
+ * @brief Struttura che mantiene l'identificatore del nipote e dell'indice della stringa che sta elaborando
 */
 struct Status{
     int grandson;
@@ -11,7 +11,7 @@ struct Status{
 };
 
 /**
- * @struct Message 
+ * @struct Message
  * @brief Struttura di un messaggio
 */
 struct Message{
@@ -20,8 +20,8 @@ struct Message{
 };
 
 /**
- * @struct Memory 
- * @brief TODO
+ * @struct Memory
+ * @brief Struttura che contiene la chiave e l'identificatore del segmento di memoria e il puntatore alla zona di memoria stessa
 */
 struct Memory{
     key_t key;
@@ -30,7 +30,7 @@ struct Memory{
 };
 
 /**
- * @struct Nipote 
+ * @struct Nipote
  * @brief Struttura utilizzata dalla thread Nipote che processa una stringa
 */
 struct Nipote{
@@ -41,7 +41,7 @@ struct Nipote{
 };
 
 /**
- * @struct Thread 
+ * @struct Thread
  * @brief Struttura contenente i dati utilizzati dalle thread per la ricerca della chiave
 */
 struct Thread{
