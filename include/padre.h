@@ -25,7 +25,7 @@ void padre(char * input_path, char * output_path);
  * @brief crea segmento di memoria condivisa
  * @param key: chiave del segmento da creare
  * @param size: dimensione del segmento da creare
- * @param shmid: TODO
+ * @param shmid: puntatore ad un intero che conterrà l'id della zona di memoria
  * @return puntatore al segmento di memoria condivisa creato
  */
 int * attach_segments(int key, int size, int * shmid);
@@ -33,7 +33,7 @@ int * attach_segments(int key, int size, int * shmid);
 /**
  * @brief ​elimina segmento di memoria condivisa
  * @param locate: puntatore al segmento di memoria condivisa
- * @param shmid: TODO
+ * @param shmid: puntatore ad un intero che contiene l'id della zona di memoria
  * @return return value della system call invocata
  */
 int detach_segments(void * locate, int * shmid);
@@ -42,7 +42,7 @@ int detach_segments(void * locate, int * shmid);
  * @brief ​carica il file di input
  * @param fd: file descriptor del file in input
  * @param S1: puntatore al segmento di memoria condivisa S1 in cui verrà memorizzato il contenuto del file
- * @param save: TODO
+ * @param save: puntatore che conterrà un puntatore ad intero riferito alla zona di memoria della struttura status
  */
 void load_file(int fd, char * S1, int * * save);
 

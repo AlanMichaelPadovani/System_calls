@@ -10,8 +10,15 @@
 #include <sys/msg.h>
 #include "nipote_t.h"
 
+/// @defgroup locks
+/// @{
+/// lock utilizzati dalle thread
+
+/// lock per proteggere la prima zona di memoria
 pthread_mutex_t lock1;
+/// lock per proteggere la seconda zona di memoria
 pthread_mutex_t lock2;
+/// @}
 
 /// @defgroup Metodi_Figlio_t Metodi Figlio_t
 /// @{

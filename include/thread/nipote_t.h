@@ -11,8 +11,15 @@
 #include <time.h>
 #include <errno.h>
 
+/// @defgroup Variabili comuni per il Nipote_t
+/// @{
+/// Variabili comuni per nipote thread
+
+/// la chiave trovata
 unsigned int key;
+/// lock per segnalare la fine della ricerca
 pthread_mutex_t end_thread;
+/// @}
 
 /// @defgroup Metodi_Nipote_t Metodi Nipote_t
 /// @{
@@ -36,7 +43,7 @@ int load_string();
  * @param S1: La zona di memoria in cui è presente il file di input
  * @param my_string: L'indice della riga che deve elaborare
  * @param lock: Il lock condiviso tra le thread
- * @return
+ * @return la chiave usata per cifrare la riga
  */
 unsigned int find_key(char * S1, int my_string, pthread_mutex_t * lock);
 

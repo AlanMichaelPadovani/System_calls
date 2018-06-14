@@ -29,21 +29,21 @@ int load_string();
 /**
  * @brief Acquire del semaforo passato in input - richiama il metodo lock_semaphore di Utility
  * @param sem: semaforo
- * @param num_sem: numero del semaforo nell'insieme
+ * @param num: numero del semaforo nell'insieme
  */
 void lock(int sem, int num);
 
 /**
  * @brief Release del semaforo passato in input - richiama il metodo unlock_semaphore di Utility
  * @param sem: semaforo
- * @param num_sem: numero del semaforo nell'insieme
+ * @param num: numero del semaforo nell'insieme
  */
 void unlock(int sem, int num);
 
 /**
  * @brief trova la chiave
  * @param S1: puntatore alla memoria condivisa S1
- * @param offset: offset per recuperare la stringa corrente nella memoria condivisa S1
+ * @param my_string: offset per recuperare la stringa corrente nella memoria condivisa S1
  */
 unsigned int find_key(char * S1, int my_string);
 
