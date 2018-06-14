@@ -66,9 +66,8 @@ void status_updated(){
 	//release semafore for S1
 	unlock_semaphore(sem_mem, 0);
 	//transform id_string into char
-	int power=1, cifre =1;
-    for(;(power*10)<=id_string;cifre++, power=power*10); //obtain number of digits
-    int num_cifre=cifre;
+	int power=1, num_cifre=1;
+    for(;(power*10)<=id_string;num_cifre++, power=power*10); //obtain number of digits
     char id_string_c[num_cifre]; //transform into char
 	num_cifre--;
     while(num_cifre!=-1){

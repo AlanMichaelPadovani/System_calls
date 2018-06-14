@@ -184,9 +184,7 @@ void start_threads(unsigned int * plain_text, unsigned int * encoded_text, unsig
 	
     //key is found, kill all the remaining thread
     for(i=0; i<NUM_THREAD_KEY; i++){
-        if(pthread_cancel(threads[i]) != 0){
-			perror(ERROR_GENERIC);
-        }
+   		pthread_cancel(threads[i]);
     }
     
     int destroy_return = pthread_mutex_destroy(&end_thread);
