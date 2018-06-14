@@ -11,9 +11,9 @@
 #include <time.h>
 #include <errno.h>
 
-/// @defgroup Variabili comuni per il Nipote_t
+/// @defgroup var_comuni Variabili comuni per Nipote_t
 /// @{
-/// Variabili comuni per nipote thread
+/// Variabili comuni per thread Nipote_t
 
 /// la chiave trovata
 unsigned int key;

@@ -6,12 +6,20 @@
 
 /*! \mainpage Sistemi Operativi 2017/2018
  *
+ * \section descrizion_sec Descrizione Progetto
+ * Ogni riga del file di input al programma rispetta il seguente pattern:
+ * \a \<​plain_text​>;\a \<​encoded_text>,
+ * \a plain_text è una stringa di testo con un numero di caratteri ASCII
+ * multiplo di 4 e con un numero massimo di caratteri uguale a 512.
+ * \a encoded_text è una stringa di massimo 512 caratteri ASCII generata
+ * codificando la stringa \a plain_text con un cifratore XOR a 32-bit (di uguale lunghezza).
+ *
  * \section struttura_sec Struttura Progetto
  *
  * \subsection step1 Versione base
- * Applicazione che trova le chiavi usate per cifrare un file usando un sistema di processi
+ * Applicazione che trova le chiavi utilizzate per codificare un set di stringhe usando un sistema di processi.
  * \subsection step2 Versione con thread
- * Versione della applicazione che utilizza le thread per parallelizzare la ricerca
+ * Versione della applicazione che utilizza le thread per parallelizzare la ricerca.
  *
  */
 
@@ -41,15 +49,15 @@
 /// Chiavi utilizzate
 
 /// chiave per la prima zona di memoria (S1)
-#define KEY_S1 50056211
+#define KEY_S1 2018
 /// chiave per la seconda zona di memoria (S2)
-#define KEY_S2 705031
+#define KEY_S2 2019
 /// chiave per la coda di messaggi
-#define MSG_KEY 3050321
+#define MSG_KEY 2020
 /// chiave per il semaforo
-#define KEY_P 596501
+#define KEY_P 2021
 /// chiave per il semaforo di scrittura
-#define KEY_SEM_WRITE 4650011
+#define KEY_SEM_WRITE 2022
 /// @}
 
 /// @defgroup Messaggi
