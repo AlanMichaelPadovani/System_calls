@@ -65,7 +65,16 @@ void status_updated(){
 	S1=temp; //restore S1
 	//release semafore for S1
 	unlock_semaphore(sem_mem, 0);
-	id_string=id_string+48;
+	//transform id_string into char
+	int power=1, cifre =1;
+    for(;(power*10)<=id_string;cifre++, power=power*10); //obtain number of digits
+    int num_cifre=cifre;
+    char id_string_c[num_cifre]; //transform into char
+	num_cifre--;
+    while(num_cifre!=-1){
+        id_string_c[num_cifre--]=id_string%10 + 48;
+        id_string=id_string/10;
+    }
 	char message1[]="Il nipote ";
 	char message2[]=" sta analizzando la ";
 	char message3[]="-esima stringa.\n";
@@ -76,7 +85,7 @@ void status_updated(){
 	write(1,&message1,sizeof(message1));
 	write(1,&grandson,sizeof(int));
 	write(1,&message2,sizeof(message2));
-	write(1,&id_string,sizeof(int));
+	write(1,&id_string_c,sizeof(id_string_c));
 	write(1,&message3,sizeof(message3));
 
 	//release semaphore for stdout
