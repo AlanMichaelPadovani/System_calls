@@ -44,7 +44,7 @@
 #define NUM_THREAD_KEY 2
 /// @}
 
-/// @defgroup Keys
+/// @defgroup Keys Chiavi utilizzate
 /// @{
 /// Chiavi utilizzate
 
@@ -60,7 +60,7 @@
 #define KEY_SEM_WRITE 2022
 /// @}
 
-/// @defgroup Messaggi
+/// @defgroup Messaggi Messaggi di errore
 /// @{
 /// Messaggi di errore
 
@@ -95,9 +95,17 @@ int sem_mem;
 struct sembuf sb;
 /// @}
 
+/// @defgroup booleani Variabili booleane
+/// @{
+/// variabili usate per implementare il tipo booleano
+
+/// definizione del tipo bool
 typedef int bool;
+/// definizione del valore vero
 #define true 1
+/// definizione del valore falso
 #define false 0
+/// @}
 
 /// @defgroup Metodi_utility Metodi di utility
 /// @{

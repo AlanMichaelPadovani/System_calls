@@ -1,6 +1,8 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+/// @file
+
 /**
  * @struct Status
  * @brief Struttura che mantiene l'identificatore del nipote e dell'indice della stringa che sta elaborando
@@ -71,5 +73,7 @@ struct Thread{
     /** lock condiviso tra le thread */
     pthread_mutex_t * lock;
 };
+
+/// @}
 
 #endif

@@ -1,6 +1,8 @@
 #ifndef PADRE_T_H
 #define PADRE_T_H
 
+/// @file
+
 #include "../utility.h"
 #include <fcntl.h>
 #include <sys/stat.h>
